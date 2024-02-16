@@ -56,8 +56,8 @@ pytest --otel-session-name='My_Test_cases'
 
 ## Demos
 
-* [Jaeger](https://github.com/kuisathaverat/pytest_otel/docs/demos/jaeger/README.md)
-* [Elastic Stack](https://github.com/kuisathaverat/pytest_otel/docs/demos/elastic/README.md)
+* [Jaeger](https://github.com/kuisathaverat/pytest_otel/blob/main/docs/demos/jaeger/README.md)
+* [Elastic Stack](https://github.com/kuisathaverat/pytest_otel/blob/main/docs/demos/elastic/README.md)
 
 ## License
 
