@@ -1,4 +1,3 @@
-__init__.py
 .gradle
 .idea
 .venv
@@ -11,3 +10,8 @@ gha-creds-*.json
 release.properties
 target
 venv
+pytest_otel.egg-info
+junit-test_*.xml
+.mypy_cache
+.pytest_cache
+tests/tests.json

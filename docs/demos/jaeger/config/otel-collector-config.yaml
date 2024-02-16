@@ -7,8 +7,8 @@ receivers:
       grpc:
 
 exporters:
-  logging:
-    loglevel: debug
+  debug:
+    verbosity: detailed
   jaeger:
     endpoint: jaeger-all-in-one:14250
     tls:

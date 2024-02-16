@@ -4,7 +4,7 @@
 version: "3.7"
 services:
   otel-collector:
-    image: otel/opentelemetry-collector:latest
+    image: otel/opentelemetry-collector:0.94.0
     user: ${UID}:${GID}
     command: ["--config=/etc/otel-collector.yaml"]
     volumes:
