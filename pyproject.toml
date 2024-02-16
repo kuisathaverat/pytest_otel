@@ -1,13 +1,92 @@
+[build-system]
+requires = ["setuptools >= 61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pytest_otel"
+dynamic = ["version"]
+description = "OpenTelemetry plugin for Pytest"
+readme =  {file = "README.md", content-type = "text/markdown"}
+authors = [
+  {name = "Ivan Fernandez Calvo (kuisathaverat)"}
+]
 dependencies = [
-    "opentelemetry-api==1.15.0",
-    "opentelemetry-exporter-otlp==1.15.0",
-    "opentelemetry-sdk==1.15.0",
-    "pytest==7.1.3",
+  "opentelemetry-api==1.15.0",
+  "opentelemetry-exporter-otlp==1.15.0",
+  "opentelemetry-sdk==1.15.0",
+  "pytest==7.1.3",
+]
+requires-python = ">= 3.8"
+license = {file = "LICENSE"}
+keywords = ["pytest", "otel", "opentelemetry", "debug"]
+classifiers = [
+  "Environment :: Plugins",
+  "Framework :: Pytest",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: Apache Software License",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Topic :: Software Development :: Libraries",
+  "Topic :: Software Development :: Testing",
+  "Topic :: Utilities",
+]
+[project_urls]
+Homepage = "https://github.com/kuisathaverat/pytest_otel"
+Documentation = "https://github.com/kuisathaverat/pytest_otel/blob/main/README.md"
+Repository = "https://github.com/kuisathaverat/pytest_otel.git"
+Issues = "https://github.com/kuisathaverat/pytest_otel/issues"
+Changelog = "https://github.com/kuisathaverat/pytest_otel/releases"
+
+[project.optional-dependencies]
+test = [
+  "pytest-cov==4.1.0",
+  "pre-commit==3.6.1",
+  "pytest-docker==3.1.1",
+  "mypy==1.8.0",
+  "black==24.2.0",
+  "flake8==7.0.0",
+  "build==1.0.3",
+  "twine==5.0.0",
 ]
 
-[build-system]
-requires = ["setuptools >= 44.0.0", "wheel >= 0.30"]
-build-backend = "setuptools.build_meta"
+[tool.setuptools.dynamic]
+version = {attr = "pytest_otel.__version__"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+pytest_otel = ["py.typed"]
+
+[project.entry-points.pytest11]
+pytest_otel = "pytest_otel"
+
+[tool.pytest]
+addopts = "-ra --showlocals -vv"
+testpaths = "tests"
+xfail_strict = true
+junit_family = "xunit2"
+
+[tool.distutils.bdist_wheel]
+universal = true
+
+[tool.flake8]
+max-line-length = "120"
+ignore = [
+  "F401", "H301", "E203", "SC200", "SC100", "W503",
+]
+exclude = [
+  ".venv",
+  ".git",
+  "__pycache__",
+  ".tox",
+  ".mypy_cache",
+]
 
 [tool.black]
 line-length = 120
@@ -24,3 +103,41 @@ exclude = '''
   | tests/data
 )/
 '''
+
+[tool.coverage.run]
+source = [ "src", "tests" ]
+parallel = true
+branch = true
+dynamic_context = "test_function"
+
+[tool.coverage.report]
+fail_under = "100"
+skip_covered = true
+show_missing = true
+
+[tool.coverage.html]
+show_contexts = true
+skip_covered = false
+skip_empty = false
+
+[tool.coverage.paths]
+source = [ "src" ]
+
+[tool.mypy]
+python_version = "3.8"
+allow_untyped_defs = true
+allow_untyped_calls = true
+disallow_any_generics = true
+disallow_subclassing_any = true
+disallow_incomplete_defs = true
+disallow_untyped_decorators = true
+show_error_codes = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = false
+warn_no_return = true
+warn_return_any = true
+implicit_reexport = false
+strict_equality = true
+warn_unused_configs = true
+pretty = true

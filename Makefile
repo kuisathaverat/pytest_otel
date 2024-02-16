@@ -6,33 +6,11 @@ OTEL_SERVICE_NAME ?= "pytest_otel_test"
 OTEL_EXPORTER_OTLP_INSECURE ?= True
 OTEL_EXPORTER_OTLP_HEADERS ?=
 TRACEPARENT ?=
-REPO_URL ?= https://upload.pypi.org/legacy/
 DEMO_DIR ?= docs/demos
 
 VENV ?= .venv
 PYTHON ?= python3
 PIP ?= pip3
-GH_VERSION = 1.0.0
-
-UNAME_S := $(shell uname -s)
-ifeq ($(UNAME_S),Linux)
-	OS_FLAG := linux
-endif
-ifeq ($(UNAME_S),Darwin)
-	OS_FLAG := macOS
-endif
-UNAME_P := $(shell uname -m)
-ifeq ($(UNAME_P),x86_64)
-	ARCH_FLAG := amd64
-endif
-ifneq ($(filter %86,$(UNAME_P)),)
-	ARCH_FLAG := i386
-endif
-GH_BINARY = gh_$(GH_VERSION)_$(OS_FLAG)_$(ARCH_FLAG)
-GH = $(CURDIR)/bin/gh
-
-export UID=$(shell id -u)
-export GID=$(shell id -g)
 
 SHELL = /bin/bash
 .SILENT:
@@ -43,55 +21,44 @@ help:
 	@echo ""
 	@grep '^## @help' Makefile|cut -d ":" -f 2-3|( (sort|column -s ":" -t) || (sort|tr ":" "\t") || (tr ":" "\t"))
 
-bin:
-	mkdir bin
-
-bin/gh: bin
-	curl -sSfL https://github.com/cli/cli/releases/download/v$(GH_VERSION)/$(GH_BINARY).tar.gz|tar xz
-	mv $(GH_BINARY)/bin/gh bin/gh
-	rm -fr $(GH_BINARY)
-
 ## @help:virtualenv:Create a Python virtual environment.
 .PHONY: virtualenv
 virtualenv:
 	$(PYTHON) --version
 	test -d $(VENV) || $(PYTHON) -m venv $(VENV);\
-	source $(VENV)/bin/activate;\
-	$(PIP) install -q -r requirements.txt;
-
-## @help:install:Install APM CLI in a Python virtual environment.
-.PHONY: install
-install: virtualenv
-	source $(VENV)/bin/activate;\
-	$(PIP) install .;
+	source $(VENV)/bin/activate; \
+	$(PIP) install ".[test]";
 
 ## @help:test:Run the test.
 .PHONY: test
-test: virtualenv install
+test: virtualenv
 	source $(VENV)/bin/activate;\
-	pytest --capture=no -p pytester --runpytest=subprocess \
+	$(PYTHON) -m pytest --capture=no -p pytester --runpytest=subprocess \
 		--junitxml $(CURDIR)/junit-test_pytest_otel.xml \
 		tests/test_pytest_otel.py;
 
 ## @help:test:Run the test.
 .PHONY: test
-it-test: virtualenv install
+it-test: virtualenv
 	set -e;\
 	source $(VENV)/bin/activate;\
 	for test in tests/it/test_*.py; \
 	do \
-		pytest --capture=no -p pytester --runpytest=subprocess \
+		$(PYTHON) -m pytest --capture=no -p pytester --runpytest=subprocess \
 			--junitxml $(CURDIR)/junit-$$(basename $${test}).xml \
 			$${test}; \
 	done;
-	#pytest --capture=no -p pytester --runpytest=subprocess tests/it/test_*.py;
 
-## @help:coverage:Report coverage.
-.PHONY: coverage
-coverage: virtualenv
+## @help:format:Format the code.
+format: virtualenv
 	source $(VENV)/bin/activate;\
-	coverage run --source=otel -m pytest; \
-	coverage report -m;
+	$(PYTHON) -m black src/pytest_otel tests;
+
+## @help:test-coverage:Report coverage.
+.PHONY: test-coverage
+test-coverage: virtualenv
+	source $(VENV)/bin/activate;\
+	pytest --cov=pytest_otel --capture=no -p pytester --runpytest=subprocess tests/test_pytest_otel.py;
 
 ## @precomit:pre-commit:Run precommit hooks.
 lint: virtualenv
@@ -107,13 +74,12 @@ clean:
 	@find . -type f -name "*.py[co]" -delete
 	@find . -type d -name "__pycache__" -delete
 	@find . -name '*~' -delete
-	-@rm -fr src/pytest_otel.egg-info *.egg-info build dist $(VENV) bin .tox .mypy_cache .pytest_cache otel-traces-file-output.json test_spans.json temp junit-*.xml
+	-@rm -fr src/pytest_otel.egg-info *.egg-info build dist $(VENV) bin .tox .mypy_cache .pytest_cache otel-traces-file-output.json test_spans.json temp junit-*.xml .coverage*
 
-package: virtualenv
+## @help:build:Build the Python project package.
+build: virtualenv
 	source $(VENV)/bin/activate;\
-	set +xe; \
-	pip install wheel; \
-	$(PYTHON) setup.py sdist bdist_wheel
+	$(PYTHON) -m build
 
 ## @help:run-otel-collector:Run OpenTelemetry collector in debug mode.
 .PHONY: run-otel-collector
@@ -125,23 +91,20 @@ run-otel-collector:
 	--name otelcol otel/opentelemetry-collector \
 	--config otel-config.yaml; \
 
-#https://upload.pypi.org/legacy/
-#https://test.pypi.org/legacy/
-#secret/observability-team/ci/apm-agent-python-pypi-test
-#secret/observability-team/ci/apm-agent-python-pypi-prod
+# https://upload.pypi.org/legacy/
+# https://test.pypi.org/legacy/
 ## @help:publish REPO_URL=${REPO_URL} TWINE_USER=${TWINE_USER} TWINE_PASSWORD=${TWINE_PASSWORD}:Publish the Python project in a PyPI repository.
 .PHONY: publish
-publish: package
+publish: build
 	set +xe; \
 	source $(VENV)/bin/activate;\
-	$(PYTHON) -m pip install twine;\
-	echo "Uploading to $${REPO_URL} with user $${TWINE_USER}";\
-	python -m twine upload --username "$${TWINE_USER}" --password "$${TWINE_PASSWORD}" --skip-existing --repository-url $${REPO_URL} dist/*.tar.gz;\
-	python -m twine upload --username "$${TWINE_USER}" --password "$${TWINE_PASSWORD}" --skip-existing --repository-url $${REPO_URL} dist/*.whl
+	echo "Uploading to $${REPO_URL}";\
+	$(PYTHON) -m twine upload --username "$${TWINE_USER}" --password "$${TWINE_PASSWORD}" --skip-existing --repository-url $${REPO_URL} dist/*.tar.gz;\
+	$(PYTHON) -m twine upload --username "$${TWINE_USER}" --password "$${TWINE_PASSWORD}" --skip-existing --repository-url $${REPO_URL} dist/*.whl
 
 ## @help:demo-start-DEMO_NAME:Starts the demo from the demo folder, DEMO_NAME is the name of the demo type folder in the docs/demos folder (jaeger, elastic).
 .PHONY: demo-start-%
-demo-start-%: virtualenv install
+demo-start-%: virtualenv
 	$(MAKE) demo-stop-$*
 	mkdir -p $(DEMO_DIR)/$*/build
 	touch $(DEMO_DIR)/$*/build/tests.json
@@ -149,7 +112,7 @@ demo-start-%: virtualenv install
 	. $(DEMO_DIR)/$*/demo.env;\
 	env | grep OTEL;\
 	source $(VENV)/bin/activate;\
-	pytest --capture=no docs/demos/test/test_demo.py || echo "Demo execution finished you can access to http://localhost:5601 to check the traces, the user is 'admin' and the password 'changeme'";
+	$(PYTHON) -m pytest --capture=no docs/demos/test/test_demo.py || echo "Demo execution finished you can access to http://localhost:5601 to check the traces, the user is 'admin' and the password 'changeme'";
 
 ## @help:demo-stop-DEMO_NAME:Stops the demo from the demo folder, DEMO_NAME is the name of the demo type folder in the docs/demos folder (jaeger, elastic).
 .PHONY: demo-stop-%
