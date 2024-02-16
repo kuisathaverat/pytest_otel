@@ -72,18 +72,20 @@ jobs:
         with:
           script: |
             const fs = require('fs');
-            const version = fs.readFileSync('src/pytest_otel/__init__.py', 'utf8').match(/__version__ = (.*)/)[1].trim();
+            const version = fs.readFileSync('src/pytest_otel/__init__.py', 'utf8').match(/__version__ = (.*)/)[1].trim().replace(/"/g, '');
             const { data: latestRelease } = await github.rest.repos.getLatestRelease({
               owner: context.repo.owner,
               repo: context.repo.repo,
             })
 
-            if (latestRelease.tag_name === version) {
+            if (`${latestRelease.tag_name}` ==  `v${version}` ) {
               core.setOutput('release', 'false' );
             } else {
               core.setOutput('release', 'true' );
               core.setOutput('version', version );
             }
+            core.info(`version: v${version}`);
+            core.info(`latestRelease: ${latestRelease.tag_name}`);
       - name: Release
         if: ${{ steps.check_version.outputs.release == 'true'}}
         id: release
