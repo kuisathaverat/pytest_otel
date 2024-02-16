@@ -10,7 +10,7 @@ updates:
     reviewers:
       - "kuisathaverat"
     groups:
-      github-actions:
+      opentelemetry:
         patterns:
           - "opentelemetry-*"
 
