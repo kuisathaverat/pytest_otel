@@ -68,6 +68,7 @@ jobs:
         env:
           TWINE_USERNAME: ${{ secrets.TWINE_USERNAME }}
           TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
+          REPO_URL: ${{ secrets.REPO_URL }}
       - uses: release-drafter/release-drafter@v6
         with:
           version: ${{ steps.release.outputs.version }}
