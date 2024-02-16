@@ -11,3 +11,7 @@ gha-creds-*.json
 release.properties
 target
 venv
+pytest_otel.egg-info
+junit-test_pytest_otel.xml
+.mypy_cache
+.pytest_cache

@@ -1,5 +1,5 @@
 ---
-## continous integration workflow
+## continuous integration workflow
 name: ci
 
 on:
@@ -18,6 +18,11 @@ jobs:
           fetch-depth: 0
           fetch-tags: false
           ref: ${{ github.sha || 'main' }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version-file: .python-version
+          cache: 'pip'
+          cache-dependency-path: requirements.txt
       - name: Lint
         run: make lint
   build:
@@ -43,4 +48,3 @@ jobs:
         with:
           name: test-results
           path: "**/junit-*.xml"
-

@@ -1,5 +1,5 @@
 ---
-## continous deployment workflow
+## continuous deployment workflow
 name: cd
 
 on:
@@ -17,6 +17,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: false
+          ref: ${{ github.sha || 'main' }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version-file: .python-version
+          cache: 'pip'
+          cache-dependency-path: requirements.txt
       - name: Lint
         run: make lint
   build:
@@ -57,4 +66,3 @@ jobs:
           publish: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
