@@ -1,10 +1,39 @@
 ---
 version: 2
 updates:
-  # Enable version updates for pytest_otel
   - package-ecosystem: "pip"
     directory: "/"
-    # Check for updates once a month
+    schedule:
+      interval: "weekly"
+      day: "sunday"
+      time: "22:00"
+    reviewers:
+      - "kuisathaverat"
+    groups:
+      github-actions:
+        patterns:
+          - "opentelemetry-*"
+
+  - package-ecosystem: "composer"
+    directory: "docs/demos/jaeger/docker-compose.yml"
+    schedule:
+      interval: "weekly"
+      day: "sunday"
+      time: "22:00"
+    reviewers:
+      - "kuisathaverat"
+
+  - package-ecosystem: "composer"
+    directory: "tests/docker-compose.yml"
+    schedule:
+      interval: "weekly"
+      day: "sunday"
+      time: "22:00"
+    reviewers:
+      - "kuisathaverat"
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
     schedule:
       interval: "weekly"
       day: "sunday"
