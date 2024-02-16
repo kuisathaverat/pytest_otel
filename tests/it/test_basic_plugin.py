@@ -23,5 +23,6 @@ def test_basic_plugin(pytester, otel_service):
 def test_basic():
     time.sleep(5)
     pass
-""")
+"""
+    )
     assertTest(pytester, "test_basic", "passed", STATUS_CODE_OK, "passed", STATUS_CODE_OK)

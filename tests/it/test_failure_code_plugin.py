@@ -23,5 +23,6 @@ def test_failure_code_plugin(pytester, otel_service):
 def test_failure_code():
     d = 1/0
     pass
-""")
+"""
+    )
     assertTest(pytester, "test_failure_code", "failed", STATUS_CODE_ERROR, "failed", STATUS_CODE_ERROR)

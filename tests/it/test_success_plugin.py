@@ -22,5 +22,6 @@ def test_success_plugin(pytester, otel_service):
         + """
 def test_success():
     assert True
-""")
+"""
+    )
     assertTest(pytester, "test_success", "passed", STATUS_CODE_OK, "passed", STATUS_CODE_OK)

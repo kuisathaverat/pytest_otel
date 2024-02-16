@@ -23,5 +23,6 @@ def test_skip_plugin(pytester, otel_service):
 @pytest.mark.skip
 def test_skip():
     assert True
-""")
+"""
+    )
     assertTest(pytester, None, "passed", STATUS_CODE_OK, None, None)

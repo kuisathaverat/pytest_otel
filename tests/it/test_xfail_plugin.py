@@ -23,5 +23,6 @@ def test_xfail_plugin(pytester, otel_service):
 @pytest.mark.xfail(reason="foo bug")
 def test_xfail():
     assert False
-""")
+"""
+    )
     assertTest(pytester, None, "passed", STATUS_CODE_OK, None, None)

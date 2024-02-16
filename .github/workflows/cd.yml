@@ -24,13 +24,15 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version-file: .python-version
-          cache: 'pip'
-          cache-dependency-path: requirements.txt
+          cache-dependency-path: pyproject.toml
       - name: Lint
         run: make lint
-  build:
+  test-python:
     runs-on: ubuntu-latest
     needs: lint
+    strategy:
+      matrix:
+        python-version: [3.8, 3.9, 3.10, 3.11, 3.12]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -40,16 +42,15 @@ jobs:
           ref: ${{ github.sha || 'main' }}
       - uses: actions/setup-python@v5
         with:
-          python-version-file: .python-version
-          cache: 'pip'
-          cache-dependency-path: requirements.txt
+          python-version-file: ${{ matrix.python-version }}
+          cache-dependency-path: pyproject.toml
       - name: test
         run: make test
       - name: it-test
         run: make it-test
   release:
     runs-on: ubuntu-latest
-    needs: [lint, build]
+    needs: [lint, test-python]
     permissions:
       # write permission is required to create a github release
       contents: write
@@ -60,16 +61,39 @@ jobs:
           fetch-depth: 0
           fetch-tags: false
           ref: ${{ github.sha || 'main' }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version-file: .python-version
+          cache-dependency-path: pyproject.toml
+
+      - name: Check version change
+        uses: actions/github-script@v7
+        id: check_version
+        with:
+          script: |
+            const fs = require('fs');
+            const version = fs.readFileSync('src/pytest_otel/__init__.py', 'utf8').match(/__version__ = (.*)/)[1].trim();
+            const { data: latestRelease } = await github.rest.repos.getLatestRelease({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+            })
+
+            if (latestRelease.tag_name === version) {
+              core.setOutput('release', 'false' );
+            } else {
+              core.setOutput('release', 'true' );
+              core.setOutput('version', version );
+            }
       - name: Release
+        if: ${{ steps.check_version.outputs.release == 'true'}}
         id: release
-        run: |
-          make publish
-          grep "version = " setup.cfg | tr -d " " >> ${GITHUB_OUTPUT}
+        run: make publish
         env:
           TWINE_USERNAME: ${{ secrets.TWINE_USERNAME }}
           TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
           REPO_URL: ${{ secrets.REPO_URL }}
       - uses: release-drafter/release-drafter@v6
+        if: ${{ steps.check_version.outputs.release == 'true'}}
         with:
           version: ${{ steps.release.outputs.version }}
           publish: true

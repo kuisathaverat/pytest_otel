@@ -36,7 +36,7 @@ def assertSpan(span, name, outcome, status):
 def assertTest(pytester, name, ts_outcome, ts_status, outcome, status):
     pytester.runpytest("--otel-span-file-output=./test_spans.json", "--otel-debug=True", "-rsx")
     span_list = None
-    with open("test_spans.json", encoding='utf-8') as input:
+    with open("test_spans.json", encoding="utf-8") as input:
         span_list = json.loads(input.read())
     foundTest = False
     foundTestSuit = False
@@ -57,7 +57,8 @@ def test_basic_plugin(pytester):
 def test_basic():
     time.sleep(5)
     pass
-""")
+"""
+    )
     assertTest(pytester, "test_basic", "passed", "OK", "passed", "OK")
 
 
@@ -68,7 +69,8 @@ def test_success_plugin(pytester):
         + """
 def test_success():
     assert True
-""")
+"""
+    )
     assertTest(pytester, "test_success", "passed", "OK", "passed", "OK")
 
 
@@ -79,7 +81,8 @@ def test_failure_plugin(pytester):
         + """
 def test_failure():
     assert 1 < 0
-""")
+"""
+    )
     assertTest(pytester, "test_failure", "failed", "ERROR", "failed", "ERROR")
 
 
@@ -91,7 +94,8 @@ def test_failure_code_plugin(pytester):
 def test_failure_code():
     d = 1/0
     pass
-""")
+"""
+    )
     assertTest(pytester, "test_failure_code", "failed", "ERROR", "failed", "ERROR")
 
 
@@ -103,7 +107,8 @@ def test_skip_plugin(pytester):
 @pytest.mark.skip
 def test_skip():
     assert True
-""")
+"""
+    )
     assertTest(pytester, None, "passed", "OK", None, None)
 
 
@@ -115,7 +120,8 @@ def test_xfail_plugin(pytester):
 @pytest.mark.xfail(reason="foo bug")
 def test_xfail():
     assert False
-""")
+"""
+    )
     assertTest(pytester, None, "passed", "OK", None, None)
 
 
@@ -127,5 +133,6 @@ def test_xfail_no_run_plugin(pytester):
 @pytest.mark.xfail(run=False)
 def test_xfail_no_run():
     assert False
-""")
+"""
+    )
     assertTest(pytester, None, "passed", "OK", None, None)

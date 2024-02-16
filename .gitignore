@@ -15,3 +15,6 @@ junit-test_*.xml
 .mypy_cache
 .pytest_cache
 tests/tests.json
+dist
+.coverage.*
+.coverage
