@@ -42,7 +42,7 @@ jobs:
           ref: ${{ github.sha || 'main' }}
       - uses: actions/setup-python@v5
         with:
-          python-version-file: ${{ matrix.python-version }}
+          python-version: ${{ matrix.python-version }}
           cache-dependency-path: pyproject.toml
       - name: test
         run: make test
