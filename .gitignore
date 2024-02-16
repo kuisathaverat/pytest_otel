@@ -1,0 +1,13 @@
+__init__.py
+.gradle
+.idea
+.venv
+.vscode
+*.bck
+*.iml
+**/__pycache__
+build
+gha-creds-*.json
+release.properties
+target
+venv

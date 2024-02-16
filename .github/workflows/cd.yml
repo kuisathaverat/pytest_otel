@@ -1,0 +1,60 @@
+---
+## continous deployment workflow
+name: cd
+
+on:
+  # push:
+  #   branches:
+  #     - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    name: Run linting
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Lint
+        run: make lint
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: false
+          ref: ${{ github.sha || 'main' }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version-file: .python-version
+          cache: 'pip'
+          cache-dependency-path: requirements.txt
+      - name: test
+        run: make test
+      - name: it-test
+        run: make it-test
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      # write permission is required to create a github release
+      contents: write
+    steps:
+      - name: Release
+        id: release
+        run: |
+          make publish
+          grep "version = " setup.cfg | tr -d " " >> ${GITHUB_OUTPUT}
+        env:
+          TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
+          TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
+      - uses: release-drafter/release-drafter@v6
+        with:
+          version: ${{ steps.release.outputs.version }}
+          publish: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+

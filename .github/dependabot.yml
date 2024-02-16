@@ -1,0 +1,13 @@
+---
+version: 2
+updates:
+  # Enable version updates for pytest_otel
+  - package-ecosystem: "pip"
+    directory: "/"
+    # Check for updates once a month
+    schedule:
+      interval: "weekly"
+      day: "sunday"
+      time: "22:00"
+    reviewers:
+      - "kuisathaverat"

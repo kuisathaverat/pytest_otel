@@ -1,0 +1,38 @@
+---
+version: "2.4"
+networks:
+  default:
+    name: integration-testing
+services:
+  elasticsearch:
+    extends:
+      file: elastic-stack.yml
+      service: elasticsearch
+
+  kibana:
+    extends:
+      file: elastic-stack.yml
+      service: kibana
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+
+  fleet-server:
+    extends:
+      file: elastic-stack.yml
+      service: fleet-server
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+      kibana:
+        condition: service_healthy
+
+  wait:
+    image: busybox
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+      kibana:
+        condition: service_healthy
+      fleet-server:
+        condition: service_healthy
