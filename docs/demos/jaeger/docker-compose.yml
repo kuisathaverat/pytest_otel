@@ -4,7 +4,7 @@
 version: '3.7'
 services:
   jaeger-all-in-one:
-    image: jaegertracing/all-in-one:latest
+    image: jaegertracing/all-in-one:1.46.0
     ports:
       - "16686:16686"
       - "14268"
@@ -13,7 +13,7 @@ services:
       - pytest_otel
 
   otel-collector:
-    image: otel/opentelemetry-collector-contrib-dev:latest
+    image: otel/opentelemetry-collector-contrib:0.94.0
     command: ["--config=/etc/otel-collector-config.yaml", "${OTELCOL_ARGS}"]
     healthcheck:
       interval: 10s
