@@ -23,5 +23,6 @@ def test_xfail_no_run_plugin(pytester, otel_service):
 @pytest.mark.xfail(run=False)
 def test_xfail_no_run():
     assert False
-""")
+"""
+    )
     assertTest(pytester, None, "passed", STATUS_CODE_OK, None, None)

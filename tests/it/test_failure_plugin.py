@@ -22,5 +22,6 @@ def test_failure_plugin(pytester, otel_service):
         + """
 def test_failure():
     assert 1 < 0
-""")
+"""
+    )
     assertTest(pytester, "test_failure", "failed", STATUS_CODE_ERROR, "failed", STATUS_CODE_ERROR)
