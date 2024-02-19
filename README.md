@@ -8,10 +8,10 @@ pytest-otel plugin for reporting OpenTelemetry spans of tests executed.
 
 ## Requirements
 
-* opentelemetry-api == 1.15.0
-* opentelemetry-exporter-otlp == 1.15.0
-* opentelemetry-sdk == 1.15.0
-* pytest >= 7.1.3
+* opentelemetry-api == 1.22.0
+* opentelemetry-exporter-otlp == 1.22.0
+* opentelemetry-sdk == 1.22.0
+* pytest >= 8.0.0
 
 ## Installation
 
