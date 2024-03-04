@@ -14,7 +14,7 @@ dependencies = [
   "opentelemetry-api==1.23.0",
   "opentelemetry-exporter-otlp==1.23.0",
   "opentelemetry-sdk==1.23.0",
-  "pytest==8.0.2",
+  "pytest==8.1.0",
 ]
 requires-python = ">= 3.8"
 license = {file = "LICENSE"}
