@@ -46,7 +46,7 @@ test = [
   "pytest-cov==6.0.0",
   "pre-commit==4.0.1",
   "pytest-docker==3.1.1",
-  "mypy==1.14.0",
+  "mypy==1.14.1",
   "black==24.10.0",
   "flake8==7.1.1",
   "build==1.2.2",
