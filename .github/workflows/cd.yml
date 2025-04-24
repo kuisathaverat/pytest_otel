@@ -97,7 +97,7 @@ jobs:
       - uses: release-drafter/release-drafter@v6
         if: ${{ steps.check_version.outputs.release == 'true'}}
         with:
-          version: ${{ steps.release.outputs.version }}
+          version: ${{ steps.check_version.outputs.version }}
           publish: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
