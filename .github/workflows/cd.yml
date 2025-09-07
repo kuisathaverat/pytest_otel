@@ -67,7 +67,7 @@ jobs:
           cache-dependency-path: pyproject.toml
 
       - name: Check version change
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         id: check_version
         with:
           script: |
