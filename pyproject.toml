@@ -43,7 +43,7 @@ Changelog = "https://github.com/kuisathaverat/pytest_otel/releases"
 
 [project.optional-dependencies]
 test = [
-  "pytest-cov==6.2.1",
+  "pytest-cov==6.3.0",
   "pre-commit==4.3.0",
   "pytest-docker==3.2.3",
   "mypy==1.17.1",
