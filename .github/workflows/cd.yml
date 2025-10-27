@@ -16,12 +16,12 @@ jobs:
     name: Run linting
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # ratchet:actions/checkout@v5
         with:
           fetch-depth: 0
           fetch-tags: false
           ref: ${{ github.sha || 'main' }}
-      - uses: actions/setup-python@v6
+      - uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c # ratchet:actions/setup-python@v6
         with:
           python-version-file: .python-version
           cache-dependency-path: pyproject.toml
@@ -35,12 +35,12 @@ jobs:
         python-version: ["3.9", "3.10", "3.11", "3.12"]
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # ratchet:actions/checkout@v5
         with:
           fetch-depth: 0
           fetch-tags: false
           ref: ${{ github.sha || 'main' }}
-      - uses: actions/setup-python@v6
+      - uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c # ratchet:actions/setup-python@v6
         with:
           python-version: ${{ matrix.python-version }}
           cache-dependency-path: pyproject.toml
@@ -56,18 +56,18 @@ jobs:
       contents: write
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # ratchet:actions/checkout@v5
         with:
           fetch-depth: 0
           fetch-tags: false
           ref: ${{ github.sha || 'main' }}
-      - uses: actions/setup-python@v6
+      - uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c # ratchet:actions/setup-python@v6
         with:
           python-version-file: .python-version
           cache-dependency-path: pyproject.toml
 
       - name: Check version change
-        uses: actions/github-script@v8
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # ratchet:actions/github-script@v8
         id: check_version
         with:
           script: |
@@ -94,7 +94,7 @@ jobs:
           TWINE_USERNAME: ${{ secrets.TWINE_USERNAME }}
           TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
           REPO_URL: ${{ secrets.REPO_URL }}
-      - uses: release-drafter/release-drafter@v6
+      - uses: release-drafter/release-drafter@b1476f6e6eb133afa41ed8589daba6dc69b4d3f5 # ratchet:release-drafter/release-drafter@v6
         if: ${{ steps.check_version.outputs.release == 'true'}}
         with:
           version: ${{ steps.check_version.outputs.version }}
