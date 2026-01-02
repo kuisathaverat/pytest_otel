@@ -53,7 +53,7 @@ project/
 
 Install the package using pip:
 \```bash
-pip install pytest-otel
+pip install your-package
 \```
 ```
 
@@ -129,7 +129,7 @@ Example: Processing user data
 This example shows how to load and process user data:
 
 \```python
-from pytest_otel import process_users
+from your_package import process_users
 
 # Load users from a file
 users = load_users('users.json')

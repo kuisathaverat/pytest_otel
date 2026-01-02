@@ -106,7 +106,7 @@ def hello_world():
 ```
 
 ```bash
-pip install pytest-otel
+pip install your-package
 ```
 
 ```json
