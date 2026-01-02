@@ -23,7 +23,7 @@ from opentelemetry.trace.status import Status, StatusCode
 # from opentelemetry.ext.otcollector.metrics_exporter import CollectorMetricsExporter
 # from opentelemetry.sdk.metrics import Counter, MeterProvider
 
-__version__ = "2.0.2"
+__version__ = "2.0.3"
 
 LOGGER = logging.getLogger("pytest_otel")
 service_name = None
