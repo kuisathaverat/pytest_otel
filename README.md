@@ -60,6 +60,7 @@ pytest --otel-session-name='My_Test_cases'
 To use the HTTP exporter instead of gRPC:
 
 ```bash
+# Note: Using port 4318 (standard OTLP HTTP port) instead of 4317 (standard OTLP gRPC port)
 pytest --otel-endpoint https://otelcollector.example.com:4318 \
        --otel-service-name pytest_otel \
        --otel-session-name='My_Test_cases' \

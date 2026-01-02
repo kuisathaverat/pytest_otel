@@ -258,13 +258,10 @@ def pytest_sessionstart(session):
         os.environ["OTEL_SERVICE_NAME"] = service_name
     if insecure:
         os.environ["OTEL_EXPORTER_OTLP_INSECURE"] = f"{insecure}"
-    if otel_exporter_protocol is not None:
-        os.environ["OTEL_EXPORTER_OTLP_PROTOCOL"] = otel_exporter_protocol
     if traceparent is None:
         traceparent = os.getenv("TRACEPARENT", None)
-    # If no endpoint is set, fallback to using environment variable or in-memory exporter
-    if otel_exporter_protocol is None:
-        otel_exporter_protocol = os.getenv("OTEL_EXPORTER_OTLP_PROTOCOL", "grpc")
+    # Set protocol in environment variable for OpenTelemetry SDK
+    os.environ["OTEL_EXPORTER_OTLP_PROTOCOL"] = otel_exporter_protocol
     if len(os.getenv("OTEL_EXPORTER_OTLP_ENDPOINT", "")) == 0:
         in_memory_span_exporter = True
         otel_span_file_output = config.getoption("otel_span_file_output")

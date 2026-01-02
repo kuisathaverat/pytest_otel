@@ -140,6 +140,9 @@ def test_xfail_no_run():
 
 def test_http_exporter_protocol(pytester):
     """test that http exporter protocol option works"""
+    # Note: This test verifies that the --otel-exporter-protocol=http flag is accepted
+    # and the HTTP exporter can be initialized without errors. Since no endpoint is configured,
+    # the in-memory exporter is used instead of making actual network calls.
     pytester.makepyfile(
         common_code
         + """
