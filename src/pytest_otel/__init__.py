@@ -120,7 +120,13 @@ def init_otel():
         # Select the exporter based on the protocol
         if otel_exporter_protocol == "http/protobuf":
             from opentelemetry.exporter.otlp.proto.http.trace_exporter import OTLPSpanExporter
+        elif otel_exporter_protocol == "grpc":
+            from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
         else:
+            LOGGER.warning(
+                f"Unknown protocol '{otel_exporter_protocol}', defaulting to 'grpc'. "
+                "Valid values are 'grpc' or 'http/protobuf'."
+            )
             from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
 
         otel_exporter = OTLPSpanExporter()
