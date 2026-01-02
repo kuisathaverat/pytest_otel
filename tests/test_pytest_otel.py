@@ -140,7 +140,7 @@ def test_xfail_no_run():
 
 def test_http_exporter_protocol(pytester):
     """test that http exporter protocol option works"""
-    # Note: This test verifies that the --otel-exporter-protocol=http flag is accepted
+    # Note: This test verifies that the --otel-exporter-protocol=http/protobuf flag is accepted
     # and the HTTP exporter can be initialized without errors. Since no endpoint is configured,
     # the in-memory exporter is used instead of making actual network calls.
     pytester.makepyfile(
@@ -151,7 +151,10 @@ def test_http_protocol():
 """
     )
     pytester.runpytest(
-        "--otel-span-file-output=./test_spans_http.json", "--otel-debug=True", "--otel-exporter-protocol=http", "-rsx"
+        "--otel-span-file-output=./test_spans_http.json",
+        "--otel-debug=True",
+        "--otel-exporter-protocol=http/protobuf",
+        "-rsx",
     )
     span_list = None
     with open("test_spans_http.json", encoding="utf-8") as input:

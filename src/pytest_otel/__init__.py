@@ -98,7 +98,7 @@ def pytest_addoption(parser):
         "--otel-exporter-protocol",
         dest="otel_exporter_protocol",
         default="grpc",
-        help="OTLP exporter protocol to use: 'grpc' or 'http'. Default is 'grpc'.(OTEL_EXPORTER_OTLP_PROTOCOL)",
+        help="OTLP exporter protocol: 'grpc' or 'http/protobuf'. Default is 'grpc'.(OTEL_EXPORTER_OTLP_PROTOCOL)",
     )
 
 
@@ -118,7 +118,7 @@ def init_otel():
         # metrics_exporter = ConsoleMetricsExporter()
     else:
         # Select the exporter based on the protocol
-        if otel_exporter_protocol == "http":
+        if otel_exporter_protocol == "http/protobuf":
             from opentelemetry.exporter.otlp.proto.http.trace_exporter import OTLPSpanExporter
         else:
             from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
