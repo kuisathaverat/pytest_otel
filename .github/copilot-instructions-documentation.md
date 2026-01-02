@@ -52,9 +52,9 @@ project/
 ### Installation
 
 Install the package using pip:
-\```bash
+```bash
 pip install your-package
-\```
+```
 ```
 
 ## 3. Keep It Current
@@ -128,7 +128,7 @@ Example: Processing user data
 
 This example shows how to load and process user data:
 
-\```python
+```python
 from your_package import process_users
 
 # Load users from a file
@@ -143,7 +143,7 @@ results = process_users(users, config)
 #   {'name': 'Alice', 'status': 'processed'},
 #   {'name': 'Bob', 'status': 'processed'}
 # ]
-\```
+```
 """
 ```
 
@@ -215,7 +215,7 @@ class ConnectionPool:
 ```markdown
 ## System Architecture
 
-\```
+```
 ┌─────────────┐     ┌──────────────┐     ┌──────────────┐
 │   Client    │────▶│   API Layer  │────▶│   Database   │
 └─────────────┘     └──────────────┘     └──────────────┘
@@ -224,7 +224,7 @@ class ConnectionPool:
        │            ┌──────────────┐              │
        └───────────▶│  Auth Service│◀─────────────┘
                     └──────────────┘
-\```
+```
 ```
 
 ## Documentation Types
