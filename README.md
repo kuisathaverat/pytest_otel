@@ -32,6 +32,7 @@ pip install pytest-otel
 * --otel-traceparent: Trace parent ID. Env variable: `TRACEPARENT`. See https://www.w3.org/TR/trace-context-1/#trace-context-http-headers-format
 * --otel-insecure: Disables TLS. Env variable: `OTEL_EXPORTER_OTLP_INSECURE`
 * --otel-exporter-protocol: OTLP exporter protocol to use: 'grpc' or 'http/protobuf'. Default is 'grpc'. Env variable: `OTEL_EXPORTER_OTLP_PROTOCOL`
+* --otel-dotenv-path: Path to a dotenv file to load environment variables from.
 
 ```bash
 pytest --otel-endpoint https://otelcollector.example.com:4317 \
@@ -56,6 +57,32 @@ OTEL_EXPORTER_OTLP_INSECURE=False \
 OTEL_EXPORTER_OTLP_PROTOCOL=grpc \
 pytest --otel-session-name='My_Test_cases'
 ```
+
+### Using a Dotenv File
+
+To avoid setting environment variables manually, you can use a dotenv file with the `--otel-dotenv-path` option:
+
+```bash
+# Install with dotenv support
+pip install pytest-otel[dotenv]
+
+# Create a dotenv file (e.g., otel.env)
+cat > otel.env << EOF
+OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4318
+OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf
+OTEL_SERVICE_NAME=my_service
+OTEL_RESOURCE_ATTRIBUTES=service.version=1.0.0
+OTEL_METRIC_EXPORT_INTERVAL=100
+OTEL_BSP_SCHEDULE_DELAY=100
+EOF
+
+# Run tests with dotenv file
+pytest --otel-dotenv-path=otel.env --otel-session-name='My_Test_cases'
+```
+
+**Note**: Environment variables from the dotenv file can be overridden by:
+1. Environment variables already set in the shell
+2. Command-line options passed to pytest
 
 To use the HTTP exporter instead of gRPC:
 

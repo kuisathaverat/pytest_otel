@@ -100,6 +100,12 @@ def pytest_addoption(parser):
         default="grpc",
         help="OTLP exporter protocol: 'grpc' or 'http/protobuf'. Default is 'grpc'.(OTEL_EXPORTER_OTLP_PROTOCOL)",
     )
+    group.addoption(
+        "--otel-dotenv-path",
+        dest="otel_dotenv_path",
+        default=None,
+        help="Path to a dotenv file to load environment variables from.",
+    )
 
 
 def init_otel():
@@ -246,6 +252,23 @@ def pytest_sessionstart(session):
     global service_name, traceparent, session_name, insecure, in_memory_span_exporter
     global otel_span_file_output, otel_debug, otel_exporter_protocol
     config = session.config
+    
+    # Load dotenv file if specified
+    dotenv_path = config.getoption("otel_dotenv_path")
+    if dotenv_path is not None:
+        try:
+            from dotenv import load_dotenv
+            if load_dotenv(dotenv_path, override=False):
+                LOGGER.debug(f"Loaded environment variables from {dotenv_path}")
+            else:
+                LOGGER.warning(f"Could not load dotenv file from {dotenv_path}")
+        except ImportError:
+            LOGGER.warning(
+                "python-dotenv is not installed. Install it with: pip install pytest-otel[dotenv]"
+            )
+        except Exception as e:
+            LOGGER.warning(f"Failed to load dotenv file from {dotenv_path}: {e}")
+    
     if config.getoption("otel_debug"):
         LOGGER.setLevel(logging.DEBUG)
         otel_debug = True
@@ -256,18 +279,38 @@ def pytest_sessionstart(session):
     headers = config.getoption("headers")
     insecure = config.getoption("insecure")
     otel_exporter_protocol = config.getoption("otel_exporter_protocol")
+    
+    # For options with defaults, prefer environment variables (which may come from dotenv)
+    # over the default values, but still allow CLI to override
     if endpoint is not None:
         os.environ["OTEL_EXPORTER_OTLP_ENDPOINT"] = endpoint
+    elif "OTEL_EXPORTER_OTLP_ENDPOINT" in os.environ:
+        endpoint = os.environ["OTEL_EXPORTER_OTLP_ENDPOINT"]
+    
     if headers is not None:
         os.environ["OTEL_EXPORTER_OTLP_HEADERS"] = headers
-    if service_name is not None:
+    elif "OTEL_EXPORTER_OTLP_HEADERS" in os.environ:
+        headers = os.environ["OTEL_EXPORTER_OTLP_HEADERS"]
+    
+    # For service_name, check if env var exists before using default
+    if "OTEL_SERVICE_NAME" in os.environ:
+        service_name = os.environ["OTEL_SERVICE_NAME"]
+    elif service_name is not None:
         os.environ["OTEL_SERVICE_NAME"] = service_name
+    
     if insecure:
         os.environ["OTEL_EXPORTER_OTLP_INSECURE"] = f"{insecure}"
+    elif "OTEL_EXPORTER_OTLP_INSECURE" in os.environ:
+        insecure = os.environ["OTEL_EXPORTER_OTLP_INSECURE"]
+    
     if traceparent is None:
         traceparent = os.getenv("TRACEPARENT", None)
-    # Set protocol in environment variable for OpenTelemetry SDK
-    os.environ["OTEL_EXPORTER_OTLP_PROTOCOL"] = otel_exporter_protocol
+    
+    # For protocol, prefer env var if it exists and CLI is still at default
+    if "OTEL_EXPORTER_OTLP_PROTOCOL" in os.environ and otel_exporter_protocol == "grpc":
+        otel_exporter_protocol = os.environ["OTEL_EXPORTER_OTLP_PROTOCOL"]
+    else:
+        os.environ["OTEL_EXPORTER_OTLP_PROTOCOL"] = otel_exporter_protocol
     if len(os.getenv("OTEL_EXPORTER_OTLP_ENDPOINT", "")) == 0:
         in_memory_span_exporter = True
         otel_span_file_output = config.getoption("otel_span_file_output")
