@@ -18,3 +18,5 @@ tests/tests.json
 dist
 .coverage.*
 .coverage
+test_spans*.json
+tests/data/

@@ -136,3 +136,35 @@ def test_xfail_no_run():
 """
     )
     assertTest(pytester, None, "passed", "OK", None, None)
+
+
+def test_http_exporter_protocol(pytester):
+    """test that http exporter protocol option works"""
+    # Note: This test verifies that the --otel-exporter-protocol=http/protobuf flag is accepted
+    # and the HTTP exporter can be initialized without errors. Since no endpoint is configured,
+    # the in-memory exporter is used instead of making actual network calls.
+    pytester.makepyfile(
+        common_code
+        + """
+def test_http_protocol():
+    assert True
+"""
+    )
+    pytester.runpytest(
+        "--otel-span-file-output=./test_spans_http.json",
+        "--otel-debug=True",
+        "--otel-exporter-protocol=http/protobuf",
+        "-rsx",
+    )
+    span_list = None
+    with open("test_spans_http.json", encoding="utf-8") as input:
+        span_list = json.loads(input.read())
+    foundTest = False
+    foundTestSuit = False
+    for span in span_list:
+        if span["name"] == "Running test_http_protocol":
+            foundTest = assertSpan(span, "test_http_protocol", "passed", "OK")
+        if span["name"] == "Test Suite":
+            foundTestSuit = assertTestSuit(span, "passed", "OK")
+    assert foundTest
+    assert foundTestSuit
