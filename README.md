@@ -31,6 +31,7 @@ pip install pytest-otel
 * --otel-session-name: Name for the main span.
 * --otel-traceparent: Trace parent ID. Env variable: `TRACEPARENT`. See https://www.w3.org/TR/trace-context-1/#trace-context-http-headers-format
 * --otel-insecure: Disables TLS. Env variable: `OTEL_EXPORTER_OTLP_INSECURE`
+* --otel-exporter-protocol: OTLP exporter protocol to use: 'grpc' or 'http'. Default is 'grpc'. Env variable: `OTEL_EXPORTER_OTLP_PROTOCOL`
 
 ```bash
 pytest --otel-endpoint https://otelcollector.example.com:4317 \
@@ -38,7 +39,8 @@ pytest --otel-endpoint https://otelcollector.example.com:4317 \
        --otel-service-name pytest_otel \
        --otel-session-name='My_Test_cases' \
        --otel-traceparent=00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01 \
-       --otel-insecure=False
+       --otel-insecure=False \
+       --otel-exporter-protocol=grpc
 ```
 
 **IMPORTANT**: If you use `--otel-headers` the transaction metadata might expose those arguments
@@ -51,7 +53,17 @@ OTEL_EXPORTER_OTLP_HEADERS="authorization=Bearer ASWDCcCRFfr" \
 OTEL_SERVICE_NAME=pytest_otel \
 TRACEPARENT=00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01 \
 OTEL_EXPORTER_OTLP_INSECURE=False \
+OTEL_EXPORTER_OTLP_PROTOCOL=grpc \
 pytest --otel-session-name='My_Test_cases'
+```
+
+To use the HTTP exporter instead of gRPC:
+
+```bash
+pytest --otel-endpoint https://otelcollector.example.com:4318 \
+       --otel-service-name pytest_otel \
+       --otel-session-name='My_Test_cases' \
+       --otel-exporter-protocol=http
 ```
 
 ## Demos

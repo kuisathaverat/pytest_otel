@@ -10,7 +10,6 @@ import _pytest._code
 import _pytest.skipping
 import pytest
 from opentelemetry import trace
-from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
 from opentelemetry.sdk.resources import SERVICE_NAME, Resource
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import BatchSpanProcessor, SimpleSpanProcessor
@@ -35,6 +34,7 @@ insecure = None
 in_memory_span_exporter = False
 otel_span_file_output = None
 otel_exporter = None
+otel_exporter_protocol = None
 spans = {}
 outcome = None
 otel_debug = False
@@ -94,11 +94,17 @@ def pytest_addoption(parser):
         default=False,
         help="",
     )
+    group.addoption(
+        "--otel-exporter-protocol",
+        dest="otel_exporter_protocol",
+        default="grpc",
+        help="OTLP exporter protocol to use: 'grpc' or 'http'. Default is 'grpc'.(OTEL_EXPORTER_OTLP_PROTOCOL)",
+    )
 
 
 def init_otel():
     """Init the OpenTelemetry settings"""
-    global tracer, session_name, service_name, insecure, otel_exporter, errors_counter, failed_counter, skipped_counter, total_counter, controller  # noqa: E501
+    global tracer, session_name, service_name, insecure, otel_exporter, otel_exporter_protocol, errors_counter, failed_counter, skipped_counter, total_counter, controller  # noqa: E501
     LOGGER.debug("Init Otel : {}".format(service_name))
     trace.set_tracer_provider(
         TracerProvider(
@@ -111,6 +117,12 @@ def init_otel():
         trace.get_tracer_provider().add_span_processor(SimpleSpanProcessor(otel_exporter))
         # metrics_exporter = ConsoleMetricsExporter()
     else:
+        # Select the exporter based on the protocol
+        if otel_exporter_protocol == "http":
+            from opentelemetry.exporter.otlp.proto.http.trace_exporter import OTLPSpanExporter
+        else:
+            from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
+
         otel_exporter = OTLPSpanExporter()
         trace.get_tracer_provider().add_span_processor(BatchSpanProcessor(otel_exporter))
         # metrics_exporter = CollectorMetricsExporter()
@@ -225,7 +237,8 @@ def traceparent_context(traceparent):
 
 def pytest_sessionstart(session):
     """Uses the commandline parameter to define the environment variables used by OpenTelemetry"""
-    global service_name, traceparent, session_name, insecure, in_memory_span_exporter, otel_span_file_output, otel_debug
+    global service_name, traceparent, session_name, insecure, in_memory_span_exporter
+    global otel_span_file_output, otel_debug, otel_exporter_protocol
     config = session.config
     if config.getoption("otel_debug"):
         LOGGER.setLevel(logging.DEBUG)
@@ -236,6 +249,7 @@ def pytest_sessionstart(session):
     endpoint = config.getoption("endpoint")
     headers = config.getoption("headers")
     insecure = config.getoption("insecure")
+    otel_exporter_protocol = config.getoption("otel_exporter_protocol")
     if endpoint is not None:
         os.environ["OTEL_EXPORTER_OTLP_ENDPOINT"] = endpoint
     if headers is not None:
@@ -244,8 +258,13 @@ def pytest_sessionstart(session):
         os.environ["OTEL_SERVICE_NAME"] = service_name
     if insecure:
         os.environ["OTEL_EXPORTER_OTLP_INSECURE"] = f"{insecure}"
+    if otel_exporter_protocol is not None:
+        os.environ["OTEL_EXPORTER_OTLP_PROTOCOL"] = otel_exporter_protocol
     if traceparent is None:
         traceparent = os.getenv("TRACEPARENT", None)
+    # If no endpoint is set, fallback to using environment variable or in-memory exporter
+    if otel_exporter_protocol is None:
+        otel_exporter_protocol = os.getenv("OTEL_EXPORTER_OTLP_PROTOCOL", "grpc")
     if len(os.getenv("OTEL_EXPORTER_OTLP_ENDPOINT", "")) == 0:
         in_memory_span_exporter = True
         otel_span_file_output = config.getoption("otel_span_file_output")
