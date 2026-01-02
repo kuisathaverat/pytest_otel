@@ -258,7 +258,9 @@ def pytest_sessionstart(session):
     if dotenv_path is not None:
         try:
             from dotenv import load_dotenv
-            if load_dotenv(dotenv_path, override=False):
+            # Use override=True to ensure dotenv values take precedence over inherited env vars
+            result = load_dotenv(dotenv_path, override=True)
+            if result:
                 LOGGER.debug(f"Loaded environment variables from {dotenv_path}")
             else:
                 LOGGER.warning(f"Could not load dotenv file from {dotenv_path}")

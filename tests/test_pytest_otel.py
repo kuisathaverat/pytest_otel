@@ -175,8 +175,7 @@ def test_dotenv_integration(pytester):
     # Create a dotenv file with test configuration
     pytester.makefile(
         ".env",
-        otel="""
-OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf
+        otel="""OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf
 OTEL_SERVICE_NAME=TestServiceFromDotenv
 """,
     )
