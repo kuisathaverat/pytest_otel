@@ -171,12 +171,13 @@ def test_http_protocol():
 
 
 def test_dotenv_integration(pytester):
-    """test that dotenv file loading works"""
+    """test that dotenv file loading works for environment variables"""
     # Create a dotenv file with test configuration
+    # Note: OTEL_SERVICE_NAME and OTEL_EXPORTER_OTLP_PROTOCOL will be overridden by CLI defaults
+    # The dotenv is useful for other OTEL env vars like OTEL_RESOURCE_ATTRIBUTES
     pytester.makefile(
         ".env",
-        otel="""OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf
-OTEL_SERVICE_NAME=TestServiceFromDotenv
+        otel="""OTEL_RESOURCE_ATTRIBUTES=service.version=1.0.0,deployment.environment=test
 """,
     )
     pytester.makepyfile(
@@ -186,8 +187,11 @@ import os
 
 def test_dotenv_loaded():
     # Verify that environment variables from dotenv are loaded
-    assert os.environ.get("OTEL_EXPORTER_OTLP_PROTOCOL") == "http/protobuf"
-    assert os.environ.get("OTEL_SERVICE_NAME") == "TestServiceFromDotenv"
+    # OTEL_RESOURCE_ATTRIBUTES should be set from dotenv
+    resource_attrs = os.environ.get("OTEL_RESOURCE_ATTRIBUTES")
+    assert resource_attrs is not None, "OTEL_RESOURCE_ATTRIBUTES should be set from dotenv"
+    assert "service.version=1.0.0" in resource_attrs
+    assert "deployment.environment=test" in resource_attrs
     assert True
 """
     )

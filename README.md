@@ -69,25 +69,21 @@ pip install pytest-otel[dotenv]
 # Create a dotenv file (e.g., otel.env)
 cat > otel.env << EOF
 OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4318
-OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf
-OTEL_SERVICE_NAME=my_service
-OTEL_RESOURCE_ATTRIBUTES=service.version=1.0.0
+OTEL_RESOURCE_ATTRIBUTES=service.version=1.0.0,deployment.environment=test
 OTEL_METRIC_EXPORT_INTERVAL=100
 OTEL_BSP_SCHEDULE_DELAY=100
 EOF
 
 # Run tests with dotenv file
-pytest --otel-dotenv-path=otel.env --otel-session-name='My_Test_cases'
+pytest --otel-dotenv-path=otel.env --otel-service-name=my_service --otel-session-name='My_Test_cases'
 ```
 
-**Note**: Configuration precedence when using `--otel-dotenv-path`:
-1. Values from the dotenv file (take precedence)
-2. Command-line options explicitly passed to pytest (can override dotenv)
-3. Default values
+**Note**: CLI options (including defaults) always take precedence over dotenv and environment variables. The dotenv file is useful for:
+- Setting OpenTelemetry SDK environment variables like `OTEL_RESOURCE_ATTRIBUTES`, `OTEL_METRIC_EXPORT_INTERVAL`, `OTEL_BSP_SCHEDULE_DELAY`
+- Setting `OTEL_EXPORTER_OTLP_ENDPOINT` when not using the `--otel-endpoint` flag
+- Other OpenTelemetry configuration that the plugin doesn't explicitly manage via CLI flags
 
-**Note**: Configuration precedence when NOT using `--otel-dotenv-path`:
-1. Command-line options explicitly passed to pytest
-2. Environment variables already set in the shell
+For CLI-managed options like `--otel-service-name` and `--otel-exporter-protocol`, you must pass them explicitly on the command line if you want to override the defaults.
 3. Default values
 
 To use the HTTP exporter instead of gRPC:

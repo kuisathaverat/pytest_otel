@@ -284,10 +284,10 @@ def pytest_sessionstart(session):
     insecure = config.getoption("insecure")
     otel_exporter_protocol = config.getoption("otel_exporter_protocol")
 
-    # Precedence order for each option:
-    # 1. Explicit CLI option (if provided)
-    # 2. Environment variable from dotenv or shell (if set)
-    # 3. Default value (if applicable)
+    # Precedence order:
+    # 1. CLI options (including defaults) - always take highest priority
+    # 2. Environment variables from dotenv or shell - for vars not managed by CLI
+    # 3. Defaults are included in CLI options above
 
     # endpoint has no default, so only set if explicitly provided
     if endpoint is not None:
@@ -297,12 +297,9 @@ def pytest_sessionstart(session):
     if headers is not None:
         os.environ["OTEL_EXPORTER_OTLP_HEADERS"] = headers
 
-    # service_name has a default, prefer env var if it exists
-    if "OTEL_SERVICE_NAME" in os.environ:
-        service_name = os.environ["OTEL_SERVICE_NAME"]
-    else:
-        # Set to env so OpenTelemetry SDK can access it
-        os.environ["OTEL_SERVICE_NAME"] = service_name
+    # service_name: CLI value (including default) always takes precedence
+    # Set to environment variable so OpenTelemetry SDK can access it
+    os.environ["OTEL_SERVICE_NAME"] = service_name
 
     # insecure has a default (False), only set if explicitly enabled
     if insecure and insecure != "False":  # Handle both bool and string
@@ -312,12 +309,9 @@ def pytest_sessionstart(session):
     if traceparent is None:
         traceparent = os.getenv("TRACEPARENT", None)
 
-    # protocol has a default (grpc), prefer env var if it exists
-    if "OTEL_EXPORTER_OTLP_PROTOCOL" in os.environ:
-        otel_exporter_protocol = os.environ["OTEL_EXPORTER_OTLP_PROTOCOL"]
-    else:
-        # Set to env so OpenTelemetry SDK can access it
-        os.environ["OTEL_EXPORTER_OTLP_PROTOCOL"] = otel_exporter_protocol
+    # protocol: CLI value (including default) always takes precedence
+    # Set to environment variable so OpenTelemetry SDK can access it
+    os.environ["OTEL_EXPORTER_OTLP_PROTOCOL"] = otel_exporter_protocol
     if len(os.getenv("OTEL_EXPORTER_OTLP_ENDPOINT", "")) == 0:
         in_memory_span_exporter = True
         otel_span_file_output = config.getoption("otel_span_file_output")
