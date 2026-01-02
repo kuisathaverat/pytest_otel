@@ -297,9 +297,10 @@ def pytest_sessionstart(session):
     if headers is not None:
         os.environ["OTEL_EXPORTER_OTLP_HEADERS"] = headers
 
-    # service_name: CLI value (including default) always takes precedence
-    # Set to environment variable so OpenTelemetry SDK can access it
-    os.environ["OTEL_SERVICE_NAME"] = service_name
+    # service_name has a default, but check if not None for consistency
+    # CLI value (including default) takes precedence over environment variables
+    if service_name is not None:
+        os.environ["OTEL_SERVICE_NAME"] = service_name
 
     # insecure has a default (False), only set if explicitly enabled
     if insecure and insecure != "False":  # Handle both bool and string
