@@ -168,3 +168,48 @@ def test_http_protocol():
             foundTestSuit = assertTestSuit(span, "passed", "OK")
     assert foundTest
     assert foundTestSuit
+
+
+def test_dotenv_integration(pytester):
+    """test that dotenv file loading works for environment variables"""
+    # Create a dotenv file with test configuration
+    # Note: OTEL_SERVICE_NAME and OTEL_EXPORTER_OTLP_PROTOCOL will be overridden by CLI defaults
+    # The dotenv is useful for other OTEL env vars like OTEL_RESOURCE_ATTRIBUTES
+    pytester.makefile(
+        ".env",
+        otel="""OTEL_RESOURCE_ATTRIBUTES=service.version=1.0.0,deployment.environment=test
+""",
+    )
+    pytester.makepyfile(
+        common_code
+        + """
+import os
+
+def test_dotenv_loaded():
+    # Verify that environment variables from dotenv are loaded
+    # OTEL_RESOURCE_ATTRIBUTES should be set from dotenv
+    resource_attrs = os.environ.get("OTEL_RESOURCE_ATTRIBUTES")
+    assert resource_attrs is not None, "OTEL_RESOURCE_ATTRIBUTES should be set from dotenv"
+    assert "service.version=1.0.0" in resource_attrs
+    assert "deployment.environment=test" in resource_attrs
+    assert True
+"""
+    )
+    pytester.runpytest(
+        "--otel-dotenv-path=otel.env",
+        "--otel-span-file-output=./test_spans_dotenv.json",
+        "--otel-debug=True",
+        "-rsx",
+    )
+    span_list = None
+    with open("test_spans_dotenv.json", encoding="utf-8") as input:
+        span_list = json.loads(input.read())
+    foundTest = False
+    foundTestSuit = False
+    for span in span_list:
+        if span["name"] == "Running test_dotenv_loaded":
+            foundTest = assertSpan(span, "test_dotenv_loaded", "passed", "OK")
+        if span["name"] == "Test Suite":
+            foundTestSuit = assertTestSuit(span, "passed", "OK")
+    assert foundTest
+    assert foundTestSuit

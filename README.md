@@ -32,6 +32,7 @@ pip install pytest-otel
 * --otel-traceparent: Trace parent ID. Env variable: `TRACEPARENT`. See https://www.w3.org/TR/trace-context-1/#trace-context-http-headers-format
 * --otel-insecure: Disables TLS. Env variable: `OTEL_EXPORTER_OTLP_INSECURE`
 * --otel-exporter-protocol: OTLP exporter protocol to use: 'grpc' or 'http/protobuf'. Default is 'grpc'. Env variable: `OTEL_EXPORTER_OTLP_PROTOCOL`
+* --otel-dotenv-path: Path to a dotenv file to load environment variables from.
 
 ```bash
 pytest --otel-endpoint https://otelcollector.example.com:4317 \
@@ -56,6 +57,34 @@ OTEL_EXPORTER_OTLP_INSECURE=False \
 OTEL_EXPORTER_OTLP_PROTOCOL=grpc \
 pytest --otel-session-name='My_Test_cases'
 ```
+
+### Using a Dotenv File
+
+To avoid setting environment variables manually, you can use a dotenv file with the `--otel-dotenv-path` option:
+
+```bash
+# Install with dotenv support
+pip install pytest-otel[dotenv]
+
+# Create a dotenv file (e.g., otel.env)
+cat > otel.env << EOF
+OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4318
+OTEL_RESOURCE_ATTRIBUTES=service.version=1.0.0,deployment.environment=test
+OTEL_METRIC_EXPORT_INTERVAL=100
+OTEL_BSP_SCHEDULE_DELAY=100
+EOF
+
+# Run tests with dotenv file
+pytest --otel-dotenv-path=otel.env --otel-service-name=my_service --otel-session-name='My_Test_cases'
+```
+
+**Note**: CLI options (including defaults) always take precedence over dotenv and environment variables. The dotenv file is useful for:
+- Setting OpenTelemetry SDK environment variables like `OTEL_RESOURCE_ATTRIBUTES`, `OTEL_METRIC_EXPORT_INTERVAL`, `OTEL_BSP_SCHEDULE_DELAY`
+- Setting `OTEL_EXPORTER_OTLP_ENDPOINT` when not using the `--otel-endpoint` flag
+- Other OpenTelemetry configuration that the plugin doesn't explicitly manage via CLI flags
+
+For CLI-managed options like `--otel-service-name` and `--otel-exporter-protocol`, you must pass them explicitly on the command line if you want to override the defaults.
+3. Default values
 
 To use the HTTP exporter instead of gRPC:
 
