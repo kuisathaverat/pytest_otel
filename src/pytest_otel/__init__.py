@@ -252,12 +252,13 @@ def pytest_sessionstart(session):
     global service_name, traceparent, session_name, insecure, in_memory_span_exporter
     global otel_span_file_output, otel_debug, otel_exporter_protocol
     config = session.config
-    
+
     # Load dotenv file if specified
     dotenv_path = config.getoption("otel_dotenv_path")
     if dotenv_path is not None:
         try:
             from dotenv import load_dotenv
+
             # Use override=True to ensure dotenv values take precedence over inherited env vars
             result = load_dotenv(dotenv_path, override=True)
             if result:
@@ -265,12 +266,10 @@ def pytest_sessionstart(session):
             else:
                 LOGGER.warning(f"Could not load dotenv file from {dotenv_path}")
         except ImportError:
-            LOGGER.warning(
-                "python-dotenv is not installed. Install it with: pip install pytest-otel[dotenv]"
-            )
+            LOGGER.warning("python-dotenv is not installed. Install it with: pip install pytest-otel[dotenv]")
         except Exception as e:
             LOGGER.warning(f"Failed to load dotenv file from {dotenv_path}: {e}")
-    
+
     if config.getoption("otel_debug"):
         LOGGER.setLevel(logging.DEBUG)
         otel_debug = True
@@ -281,33 +280,33 @@ def pytest_sessionstart(session):
     headers = config.getoption("headers")
     insecure = config.getoption("insecure")
     otel_exporter_protocol = config.getoption("otel_exporter_protocol")
-    
+
     # For options with defaults, prefer environment variables (which may come from dotenv)
     # over the default values, but still allow CLI to override
     if endpoint is not None:
         os.environ["OTEL_EXPORTER_OTLP_ENDPOINT"] = endpoint
     elif "OTEL_EXPORTER_OTLP_ENDPOINT" in os.environ:
         endpoint = os.environ["OTEL_EXPORTER_OTLP_ENDPOINT"]
-    
+
     if headers is not None:
         os.environ["OTEL_EXPORTER_OTLP_HEADERS"] = headers
     elif "OTEL_EXPORTER_OTLP_HEADERS" in os.environ:
         headers = os.environ["OTEL_EXPORTER_OTLP_HEADERS"]
-    
+
     # For service_name, check if env var exists before using default
     if "OTEL_SERVICE_NAME" in os.environ:
         service_name = os.environ["OTEL_SERVICE_NAME"]
     elif service_name is not None:
         os.environ["OTEL_SERVICE_NAME"] = service_name
-    
+
     if insecure:
         os.environ["OTEL_EXPORTER_OTLP_INSECURE"] = f"{insecure}"
     elif "OTEL_EXPORTER_OTLP_INSECURE" in os.environ:
         insecure = os.environ["OTEL_EXPORTER_OTLP_INSECURE"]
-    
+
     if traceparent is None:
         traceparent = os.getenv("TRACEPARENT", None)
-    
+
     # For protocol, prefer env var if it exists and CLI is still at default
     if "OTEL_EXPORTER_OTLP_PROTOCOL" in os.environ and otel_exporter_protocol == "grpc":
         otel_exporter_protocol = os.environ["OTEL_EXPORTER_OTLP_PROTOCOL"]
