@@ -80,9 +80,15 @@ EOF
 pytest --otel-dotenv-path=otel.env --otel-session-name='My_Test_cases'
 ```
 
-**Note**: Environment variables from the dotenv file can be overridden by:
-1. Environment variables already set in the shell
-2. Command-line options passed to pytest
+**Note**: Configuration precedence when using `--otel-dotenv-path`:
+1. Values from the dotenv file (take precedence)
+2. Command-line options explicitly passed to pytest (can override dotenv)
+3. Default values
+
+**Note**: Configuration precedence when NOT using `--otel-dotenv-path`:
+1. Command-line options explicitly passed to pytest
+2. Environment variables already set in the shell
+3. Default values
 
 To use the HTTP exporter instead of gRPC:
 
