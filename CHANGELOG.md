@@ -1,3 +1,11 @@
+# version 1.5.0
+
+* feat(dotenv): add dotenv file support for OpenTelemetry configuration [#162](https://github.com/kuisathaverat/pytest_otel/pull/162)
+  - New `--otel-dotenv-path` CLI option to load environment variables from a dotenv file
+  - Added optional `python-dotenv>=1.0.0` dependency via `pytest-otel[dotenv]` extra
+  - CLI flags maintain proper precedence over dotenv and inherited environment variables
+  - Closes [#68](https://github.com/kuisathaverat/pytest_otel/issues/68)
+
 # version 1.4.1
 
 * Move to a new repository
