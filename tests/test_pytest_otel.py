@@ -213,3 +213,158 @@ def test_dotenv_loaded():
             foundTestSuit = assertTestSuit(span, "passed", "OK")
     assert foundTest
     assert foundTestSuit
+
+
+def test_dotenv_cli_precedence(pytester):
+    """test that CLI flags take precedence over dotenv values"""
+    # Create a dotenv file with service name and protocol
+    pytester.makefile(
+        ".env",
+        otel="""OTEL_SERVICE_NAME=dotenv-service
+OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf
+OTEL_RESOURCE_ATTRIBUTES=service.version=1.0.0,deployment.environment=test
+""",
+    )
+    pytester.makepyfile(
+        common_code
+        + """
+import os
+
+def test_cli_override():
+    # Verify that CLI flags override dotenv values
+    # Service name should be 'cli-service' from CLI, not 'dotenv-service' from dotenv
+    service_name = os.environ.get("OTEL_SERVICE_NAME")
+    assert service_name == "cli-service", f"Expected 'cli-service', got '{service_name}'"
+
+    # Protocol should be 'grpc' from CLI, not 'http/protobuf' from dotenv
+    protocol = os.environ.get("OTEL_EXPORTER_OTLP_PROTOCOL")
+    assert protocol == "grpc", f"Expected 'grpc', got '{protocol}'"
+
+    # Resource attributes should still come from dotenv (not overridden by CLI)
+    resource_attrs = os.environ.get("OTEL_RESOURCE_ATTRIBUTES")
+    assert resource_attrs is not None
+    assert "service.version=1.0.0" in resource_attrs
+    assert True
+"""
+    )
+    pytester.runpytest(
+        "--otel-dotenv-path=otel.env",
+        "--otel-service-name=cli-service",
+        "--otel-exporter-protocol=grpc",
+        "--otel-span-file-output=./test_spans_precedence.json",
+        "--otel-debug=True",
+        "-rsx",
+    )
+    span_list = None
+    with open("test_spans_precedence.json", encoding="utf-8") as input:
+        span_list = json.loads(input.read())
+    foundTest = False
+    foundTestSuit = False
+    for span in span_list:
+        if span["name"] == "Running test_cli_override":
+            foundTest = assertSpan(span, "test_cli_override", "passed", "OK")
+        if span["name"] == "Test Suite":
+            foundTestSuit = assertTestSuit(span, "passed", "OK")
+    assert foundTest
+    assert foundTestSuit
+
+
+def test_dotenv_missing_file(pytester, capsys):
+    """test that missing dotenv file is handled gracefully"""
+    # Don't create a dotenv file, but specify a path that doesn't exist
+    pytester.makepyfile(
+        common_code
+        + """
+def test_missing_file():
+    # Test should run successfully even if dotenv file is missing
+    assert True
+"""
+    )
+    result = pytester.runpytest(
+        "--otel-dotenv-path=nonexistent.env",
+        "--otel-span-file-output=./test_spans_missing.json",
+        "--otel-debug=True",
+        "-rsx",
+    )
+    # Test should pass even without the dotenv file
+    result.assert_outcomes(passed=1)
+    span_list = None
+    with open("test_spans_missing.json", encoding="utf-8") as input:
+        span_list = json.loads(input.read())
+    foundTest = False
+    foundTestSuit = False
+    for span in span_list:
+        if span["name"] == "Running test_missing_file":
+            foundTest = assertSpan(span, "test_missing_file", "passed", "OK")
+        if span["name"] == "Test Suite":
+            foundTestSuit = assertTestSuit(span, "passed", "OK")
+    assert foundTest
+    assert foundTestSuit
+
+
+def test_dotenv_complex_variables(pytester):
+    """test that multiple complex OTEL environment variables are loaded correctly"""
+    # Create a dotenv file with multiple OTEL SDK configuration variables
+    pytester.makefile(
+        ".env",
+        otel="""OTEL_RESOURCE_ATTRIBUTES=service.name=test-service,service.version=1.2.3,deployment.environment=staging,service.instance.id=instance-123
+OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4318
+OTEL_EXPORTER_OTLP_HEADERS=api-key=secret123,x-custom-header=value456
+OTEL_METRIC_EXPORT_INTERVAL=10000
+OTEL_BSP_SCHEDULE_DELAY=2000
+OTEL_BSP_MAX_QUEUE_SIZE=4096
+OTEL_TRACES_SAMPLER=parentbased_always_on
+OTEL_PROPAGATORS=tracecontext,baggage
+""",
+    )
+    pytester.makepyfile(
+        common_code
+        + """
+import os
+
+def test_complex_vars():
+    # Verify that all OTEL environment variables from dotenv are loaded
+    resource_attrs = os.environ.get("OTEL_RESOURCE_ATTRIBUTES")
+    assert resource_attrs is not None
+    assert "service.name=test-service" in resource_attrs
+    assert "service.version=1.2.3" in resource_attrs
+    assert "deployment.environment=staging" in resource_attrs
+    assert "service.instance.id=instance-123" in resource_attrs
+
+    endpoint = os.environ.get("OTEL_EXPORTER_OTLP_ENDPOINT")
+    assert endpoint == "http://localhost:4318"
+
+    headers = os.environ.get("OTEL_EXPORTER_OTLP_HEADERS")
+    assert headers is not None
+    assert "api-key=secret123" in headers
+    assert "x-custom-header=value456" in headers
+
+    metric_interval = os.environ.get("OTEL_METRIC_EXPORT_INTERVAL")
+    assert metric_interval == "10000"
+
+    bsp_delay = os.environ.get("OTEL_BSP_SCHEDULE_DELAY")
+    assert bsp_delay == "2000"
+
+    queue_size = os.environ.get("OTEL_BSP_MAX_QUEUE_SIZE")
+    assert queue_size == "4096"
+
+    sampler = os.environ.get("OTEL_TRACES_SAMPLER")
+    assert sampler == "parentbased_always_on"
+
+    propagators = os.environ.get("OTEL_PROPAGATORS")
+    assert propagators == "tracecontext,baggage"
+
+    assert True
+"""
+    )
+    result = pytester.runpytest(
+        "--otel-dotenv-path=otel.env",
+        "--otel-span-file-output=./test_spans_complex.json",
+        "--otel-debug=True",
+        "-rsx",
+    )
+    # Verify test passed
+    result.assert_outcomes(passed=1)
+    # Note: We don't verify span file contents for this test since the main goal
+    # is to verify that complex OTEL environment variables are loaded correctly,
+    # which is tested by the assertions in test_complex_vars itself
