@@ -312,7 +312,10 @@ def pytest_sessionstart(session):
 
     # protocol: CLI value (including default) always takes precedence
     # Set to environment variable so OpenTelemetry SDK can access it
-    os.environ["OTEL_EXPORTER_OTLP_PROTOCOL"] = otel_exporter_protocol
+    existing_protocol = os.getenv("OTEL_EXPORTER_OTLP_PROTOCOL", None)
+    if not existing_protocol:
+        os.environ["OTEL_EXPORTER_OTLP_PROTOCOL"] = otel_exporter_protocol
+
     if len(os.getenv("OTEL_EXPORTER_OTLP_ENDPOINT", "")) == 0:
         in_memory_span_exporter = True
         otel_span_file_output = config.getoption("otel_span_file_output")
