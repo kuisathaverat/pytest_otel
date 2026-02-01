@@ -310,8 +310,6 @@ def pytest_sessionstart(session):
     if traceparent is None:
         traceparent = os.getenv("TRACEPARENT", None)
 
-    # protocol: CLI value (including default) always takes precedence
-    # Set to environment variable so OpenTelemetry SDK can access it
     existing_protocol = os.getenv("OTEL_EXPORTER_OTLP_PROTOCOL", None)
     if not existing_protocol:
         os.environ["OTEL_EXPORTER_OTLP_PROTOCOL"] = otel_exporter_protocol
