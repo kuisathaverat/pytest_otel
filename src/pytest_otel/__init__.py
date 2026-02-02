@@ -100,6 +100,12 @@ def pytest_addoption(parser):
         default="grpc",
         help="OTLP exporter protocol: 'grpc' or 'http/protobuf'. Default is 'grpc'.(OTEL_EXPORTER_OTLP_PROTOCOL)",
     )
+    group.addoption(
+        "--otel-dotenv-path",
+        dest="otel_dotenv_path",
+        default=None,
+        help="Path to a dotenv file to load environment variables from.",
+    )
 
 
 def init_otel():
@@ -246,6 +252,27 @@ def pytest_sessionstart(session):
     global service_name, traceparent, session_name, insecure, in_memory_span_exporter
     global otel_span_file_output, otel_debug, otel_exporter_protocol
     config = session.config
+
+    # Load dotenv file if specified
+    # When --otel-dotenv-path is used, dotenv values take precedence over inherited environment variables
+    # This allows the dotenv file to be the primary source of configuration
+    dotenv_path = config.getoption("otel_dotenv_path")
+    if dotenv_path is not None:
+        try:
+            from dotenv import load_dotenv
+
+            # Use override=True so dotenv values take precedence
+            # This is intentional: when using --otel-dotenv-path, the dotenv file should be the primary config source
+            result = load_dotenv(dotenv_path, override=True)
+            if result:
+                LOGGER.debug(f"Loaded environment variables from {dotenv_path}")
+            else:
+                LOGGER.warning(f"Could not load dotenv file from {dotenv_path}")
+        except ImportError:
+            LOGGER.warning("python-dotenv is not installed. Install it with: pip install pytest-otel[dotenv]")
+        except Exception as e:
+            LOGGER.warning(f"Failed to load dotenv file from {dotenv_path}: {e}")
+
     if config.getoption("otel_debug"):
         LOGGER.setLevel(logging.DEBUG)
         otel_debug = True
@@ -256,18 +283,38 @@ def pytest_sessionstart(session):
     headers = config.getoption("headers")
     insecure = config.getoption("insecure")
     otel_exporter_protocol = config.getoption("otel_exporter_protocol")
+
+    # Precedence order:
+    # 1. CLI options (including defaults) - always take highest priority
+    # 2. Environment variables from dotenv or shell - for vars not managed by CLI
+    # 3. Defaults are included in CLI options above
+
+    # endpoint has no default, so only set if explicitly provided
     if endpoint is not None:
         os.environ["OTEL_EXPORTER_OTLP_ENDPOINT"] = endpoint
+
+    # headers has no default, so only set if explicitly provided
     if headers is not None:
         os.environ["OTEL_EXPORTER_OTLP_HEADERS"] = headers
+
+    # service_name has a default, but check if not None for consistency
+    # CLI value (including default) takes precedence over environment variables
     if service_name is not None:
         os.environ["OTEL_SERVICE_NAME"] = service_name
-    if insecure:
-        os.environ["OTEL_EXPORTER_OTLP_INSECURE"] = f"{insecure}"
+
+    # insecure has a default (False), only set if explicitly enabled
+    if insecure and insecure != "False":  # Handle both bool and string
+        os.environ["OTEL_EXPORTER_OTLP_INSECURE"] = "True"
+
+    # traceparent has no default, read from env if not provided via CLI
     if traceparent is None:
         traceparent = os.getenv("TRACEPARENT", None)
-    # Set protocol in environment variable for OpenTelemetry SDK
+
+    # protocol: CLI value (including default) always takes precedence
+    # Set to environment variable so OpenTelemetry SDK can access it
+    # This MUST be unconditional to ensure CLI flags override dotenv values
     os.environ["OTEL_EXPORTER_OTLP_PROTOCOL"] = otel_exporter_protocol
+
     if len(os.getenv("OTEL_EXPORTER_OTLP_ENDPOINT", "")) == 0:
         in_memory_span_exporter = True
         otel_span_file_output = config.getoption("otel_span_file_output")
