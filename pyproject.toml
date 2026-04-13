@@ -47,7 +47,7 @@ dotenv = [
   "python-dotenv>=1.0.0",
 ]
 test = [
-  "pytest-cov==7.0.0",
+  "pytest-cov==7.1.0",
   "pre-commit==4.5.1",
   "pytest-docker==3.2.5",
   "mypy==1.19.1",
