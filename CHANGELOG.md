@@ -1,3 +1,7 @@
+# version 1.6.0
+
+* Bump minor version to 1.6.0
+
 # version 1.5.0
 
 * feat(dotenv): add dotenv file support for OpenTelemetry configuration [#162](https://github.com/kuisathaverat/pytest_otel/pull/162)
