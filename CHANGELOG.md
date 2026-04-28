@@ -1,3 +1,9 @@
+# version 2.2.1
+
+* Bump patch version to 2.2.1
+* chore(deps): bump the opentelemetry group with 3 updates [#189](https://github.com/kuisathaverat/pytest_otel/pull/189)
+* chore(deps-dev): bump build from 1.4.3 to 1.4.4 [#190](https://github.com/kuisathaverat/pytest_otel/pull/190)
+
 # version 2.2.0
 
 * Bump minor version to 2.2.0
