@@ -1,3 +1,7 @@
+# version 2.3.0
+
+* Bump minor version to 2.3.0
+
 # version 2.2.1
 
 * Bump patch version to 2.2.1
