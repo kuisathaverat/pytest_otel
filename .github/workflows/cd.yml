@@ -94,7 +94,7 @@ jobs:
           TWINE_USERNAME: ${{ secrets.TWINE_USERNAME }}
           TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
           REPO_URL: ${{ secrets.REPO_URL }}
-      - uses: release-drafter/release-drafter@4d75298e00d9e34c483e5ff8c68d0ea1c1940c1e # ratchet:release-drafter/release-drafter@v7.5.1
+      - uses: release-drafter/release-drafter@eada3c96a64734dd381cfbda23511034e328ddb0 # ratchet:release-drafter/release-drafter@v7.6.0
         if: ${{ steps.check_version.outputs.release == 'true'}}
         with:
           version: ${{ steps.check_version.outputs.version }}
