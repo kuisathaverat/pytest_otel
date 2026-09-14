@@ -51,7 +51,6 @@ test = [
   "pre-commit==4.6.2",
   "pytest-docker==3.2.5",
   "mypy==2.3.1",
-  "black==26.5.1",
   "flake8==7.3.0",
   "ruff==0.16.7",
   "build==1.6.1",
@@ -131,22 +130,6 @@ ignore = [
 
 [tool.ruff.format]
 line-ending = "lf"
-
-[tool.black]
-line-length = 120
-include = '\.pyi?$'
-exclude = '''
-/(
-    \.git
-  | _build
-  | build
-  | dist
-  | elasticapm/utils/wrapt
-  # The following are specific to Black, you probably don't want those.
-  | blib2to3
-  | tests/data
-)/
-'''
 
 [tool.coverage.run]
 source = [ "src", "tests" ]
