@@ -163,20 +163,20 @@ results = process_users(users, config)
 class ConnectionPool:
     """
     Manages a pool of database connections.
-    
+
     Why use a connection pool?
     - Reduces connection overhead (connections are expensive to create)
     - Limits concurrent connections (prevents overwhelming the database)
     - Improves performance through connection reuse
-    
+
     Trade-offs:
     - Memory overhead: Maintains connections even when idle
     - Complexity: Requires proper connection lifecycle management
-    
+
     When to use:
     - Applications with frequent database access
     - High-concurrency scenarios
-    
+
     When not to use:
     - Simple scripts with infrequent database access
     - Single-threaded applications with sequential access

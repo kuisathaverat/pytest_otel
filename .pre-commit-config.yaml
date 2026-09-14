@@ -19,7 +19,7 @@ repos:
     hooks:
     -   id: shell-lint
         name: "Shellscript: lint"
-        stages: [commit]
+        stages: [pre-commit]
         types: [shell]
 
 -   repo: https://github.com/adrienverge/yamllint.git
@@ -28,7 +28,7 @@ repos:
     -   id: yamllint
         name: "Yaml: lint"
         args: ['-c','.yamlint.yml']
-        stages: [commit]
+        stages: [pre-commit]
         types: [yaml]
         exclude: (^.pre-commit-config.yaml$|^.pre-commit-hooks.yaml$)
 

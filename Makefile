@@ -37,8 +37,8 @@ test: virtualenv
 		--junitxml $(CURDIR)/junit-test_pytest_otel.xml \
 		tests/test_pytest_otel.py;
 
-## @help:test:Run the test.
-.PHONY: test
+## @help:it-test:Run integration tests.
+.PHONY: it-test
 it-test: virtualenv
 	set -e;\
 	source $(VENV)/bin/activate;\
@@ -49,7 +49,8 @@ it-test: virtualenv
 			$${test}; \
 	done;
 
-## @help:format:Format the code.
+## @help:format:Format code with black.
+.PHONY: format
 format: virtualenv
 	source $(VENV)/bin/activate;\
 	$(PYTHON) -m black src/pytest_otel tests;
@@ -60,7 +61,8 @@ test-coverage: virtualenv
 	source $(VENV)/bin/activate;\
 	pytest --cov=pytest_otel --capture=no -p pytester --runpytest=subprocess tests/test_pytest_otel.py;
 
-## @precomit:pre-commit:Run precommit hooks.
+## @help:lint:Run linting and pre-commit hooks.
+.PHONY: lint
 lint: virtualenv
 	source $(VENV)/bin/activate;\
 	pre-commit run; \
@@ -77,6 +79,7 @@ clean:
 	-@rm -fr src/pytest_otel.egg-info *.egg-info build dist $(VENV) bin .tox .mypy_cache .pytest_cache otel-traces-file-output.json test_spans.json temp junit-*.xml .coverage*
 
 ## @help:build:Build the Python project package.
+.PHONY: build
 build: virtualenv
 	source $(VENV)/bin/activate;\
 	$(PYTHON) -m build
