@@ -48,3 +48,14 @@ repos:
     hooks:
     -   id: codespell
         args: ['--ignore-words-list','pullrequest,pullrequests']
+
+-   repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.16.7
+    hooks:
+    -   id: ruff-check
+        name: "Python: lint (ruff)"
+        types: [python]
+        args: [--fix]
+    -   id: ruff-format
+        name: "Python: format (ruff)"
+        types: [python]

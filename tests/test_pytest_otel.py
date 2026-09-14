@@ -1,8 +1,9 @@
 # Copyright The OpenTelemetry Authors
 # SPDX-License-Identifier: Apache-2.0
 
-import pytest
 import json
+
+import pytest
 
 pytest_plugins = ["pytester"]
 
@@ -41,7 +42,7 @@ def assertTest(pytester, name, ts_outcome, ts_status, outcome, status):
     foundTest = False
     foundTestSuit = False
     for span in span_list:
-        if span["name"] == "Running {}".format(name):
+        if span["name"] == f"Running {name}":
             foundTest = assertSpan(span, name, outcome, status)
         if span["name"] == "Test Suite":
             foundTestSuit = assertTestSuit(span, ts_outcome, ts_status)
