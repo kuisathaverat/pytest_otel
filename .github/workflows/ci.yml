@@ -13,36 +13,40 @@ jobs:
     name: Run linting
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # ratchet:actions/checkout@v5
-        with:
-          fetch-depth: 0
-          fetch-tags: false
-          ref: ${{ github.sha || 'main' }}
-      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # ratchet:actions/setup-python@v7.0.0
-        with:
-          python-version-file: .python-version
-          cache-dependency-path: pyproject.toml
-      - name: Lint
-        run: make lint
-  test:
-    runs-on: ubuntu-latest
-    needs: lint
-    steps:
-      - name: Checkout repository
+      - name: checkout-repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # ratchet:actions/checkout@v5
         with:
           fetch-depth: 0
           fetch-tags: false
           ref: ${{ github.sha || 'main' }}
-      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # ratchet:actions/setup-python@v7.0.0
+      - name: setup-python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # ratchet:actions/setup-python@v7.0.0
         with:
           python-version-file: .python-version
           cache-dependency-path: pyproject.toml
-      - name: test
+      - name: run-lint
+        run: make lint
+  test:
+    runs-on: ubuntu-latest
+    needs: lint
+    steps:
+      - name: checkout-repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # ratchet:actions/checkout@v5
+        with:
+          fetch-depth: 0
+          fetch-tags: false
+          ref: ${{ github.sha || 'main' }}
+      - name: setup-python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # ratchet:actions/setup-python@v7.0.0
+        with:
+          python-version-file: .python-version
+          cache-dependency-path: pyproject.toml
+      - name: run-test
         run: make test
-      - name: it-test
+      - name: run-it-test
         run: make it-test
-      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # ratchet:actions/upload-artifact@v5
+      - name: upload-test-results
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # ratchet:actions/upload-artifact@v5
         if: success() || failure()
         with:
           name: test-results

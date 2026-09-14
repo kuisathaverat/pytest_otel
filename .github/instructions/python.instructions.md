@@ -17,11 +17,11 @@ Follow these Python best practices when writing code for this repository.
 # Good naming
 class UserAccount:
     MAX_LOGIN_ATTEMPTS = 3
-    
+
     def __init__(self, username):
         self.username = username
         self._login_attempts = 0
-    
+
     def authenticate_user(self, password):
         pass
 ```
@@ -55,26 +55,26 @@ Use comprehensive docstrings following PEP 257:
 def calculate_statistics(data: List[float]) -> Dict[str, float]:
     """
     Calculate basic statistics for a dataset.
-    
+
     Args:
         data: A list of numerical values to analyze.
-    
+
     Returns:
         A dictionary containing:
             - mean: The average of the values
             - median: The middle value
             - std_dev: The standard deviation
-    
+
     Raises:
         ValueError: If the data list is empty.
-    
+
     Example:
         >>> calculate_statistics([1, 2, 3, 4, 5])
         {'mean': 3.0, 'median': 3.0, 'std_dev': 1.41}
     """
     if not data:
         raise ValueError("Data list cannot be empty")
-    
+
     # Implementation
     pass
 ```
@@ -160,17 +160,17 @@ Use properties for computed attributes:
 class Circle:
     def __init__(self, radius: float):
         self._radius = radius
-    
+
     @property
     def radius(self) -> float:
         return self._radius
-    
+
     @radius.setter
     def radius(self, value: float) -> None:
         if value < 0:
             raise ValueError("Radius cannot be negative")
         self._radius = value
-    
+
     @property
     def area(self) -> float:
         return 3.14159 * self._radius ** 2
@@ -190,7 +190,7 @@ class User:
     email: str
     age: int
     roles: List[str] = field(default_factory=list)
-    
+
     def __post_init__(self):
         if self.age < 0:
             raise ValueError("Age cannot be negative")
@@ -262,14 +262,14 @@ logger = logging.getLogger(__name__)
 
 def process_data(data: List[Dict[str, Any]]) -> None:
     logger.info(f"Processing {len(data)} records")
-    
+
     for record in data:
         try:
             process_record(record)
             logger.debug(f"Processed record: {record['id']}")
         except Exception as e:
             logger.error(f"Failed to process record {record['id']}: {e}", exc_info=True)
-    
+
     logger.info("Processing completed")
 ```
 
