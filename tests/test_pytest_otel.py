@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import json
+import os
 
 import pytest
 
@@ -364,8 +365,180 @@ def test_complex_vars():
         "--otel-debug=True",
         "-rsx",
     )
+    # Clear environment variables set by dotenv so they don't leak into subsequent tests
+    for key in (
+        "OTEL_RESOURCE_ATTRIBUTES",
+        "OTEL_EXPORTER_OTLP_ENDPOINT",
+        "OTEL_EXPORTER_OTLP_HEADERS",
+        "OTEL_METRIC_EXPORT_INTERVAL",
+        "OTEL_BSP_SCHEDULE_DELAY",
+        "OTEL_BSP_MAX_QUEUE_SIZE",
+        "OTEL_TRACES_SAMPLER",
+        "OTEL_PROPAGATORS",
+    ):
+        os.environ.pop(key, None)
+
     # Verify test passed
     result.assert_outcomes(passed=1)
     # Note: We don't verify span file contents for this test since the main goal
     # is to verify that complex OTEL environment variables are loaded correctly,
     # which is tested by the assertions in test_complex_vars itself
+
+
+def test_otel_attribute_convention(pytester):
+    """test that --otel-attribute-convention=otel sets standard OTel semantic conventions"""
+    pytester.makepyfile(
+        common_code
+        + """
+def test_convention():
+    assert True
+"""
+    )
+    pytester.runpytest(
+        "--otel-span-file-output=./test_spans_otel_conv.json",
+        "--otel-debug=True",
+        "--otel-attribute-convention=otel",
+        "-rsx",
+    )
+    with open("test_spans_otel_conv.json", encoding="utf-8") as f:
+        span_list = json.loads(f.read())
+
+    found_test = False
+    found_suite = False
+    for span in span_list:
+        if span["name"] == "Running test_convention":
+            found_test = True
+            attrs = span["attributes"]
+            assert attrs["test.case.name"].endswith("::test_convention")
+            assert attrs["test.case.result.status"] == "pass"
+            assert attrs["cicd.pipeline.task.name"] == "test_convention"
+            assert attrs["cicd.pipeline.task.run.result"] == "success"
+            assert "tests.name" not in attrs
+            assert "tests.status" not in attrs
+        if span["name"] == "Test Suite":
+            found_suite = True
+            attrs = span["attributes"]
+            assert attrs["test.suite.name"] == "Test Suite"
+            assert attrs["test.suite.run.status"] == "success"
+            assert attrs["cicd.pipeline.result"] == "success"
+            assert "tests.status" not in attrs
+
+    assert found_test
+    assert found_suite
+
+
+def test_both_attribute_convention(pytester):
+    """test that --otel-attribute-convention=both sets both legacy and OTel conventions"""
+    pytester.makepyfile(
+        common_code
+        + """
+def test_convention_both():
+    assert True
+"""
+    )
+    pytester.runpytest(
+        "--otel-span-file-output=./test_spans_both_conv.json",
+        "--otel-debug=True",
+        "--otel-attribute-convention=both",
+        "-rsx",
+    )
+    with open("test_spans_both_conv.json", encoding="utf-8") as f:
+        span_list = json.loads(f.read())
+
+    found_test = False
+    found_suite = False
+    for span in span_list:
+        if span["name"] == "Running test_convention_both":
+            found_test = True
+            attrs = span["attributes"]
+            # Legacy attributes
+            assert attrs["tests.name"] == "test_convention_both"
+            assert attrs["tests.status"] == "passed"
+            # OTel attributes
+            assert attrs["test.case.name"].endswith("::test_convention_both")
+            assert attrs["test.case.result.status"] == "pass"
+            assert attrs["cicd.pipeline.task.name"] == "test_convention_both"
+            assert attrs["cicd.pipeline.task.run.result"] == "success"
+        if span["name"] == "Test Suite":
+            found_suite = True
+            attrs = span["attributes"]
+            # Legacy
+            assert attrs["tests.status"] == "passed"
+            # OTel
+            assert attrs["test.suite.name"] == "Test Suite"
+            assert attrs["test.suite.run.status"] == "success"
+            assert attrs["cicd.pipeline.result"] == "success"
+
+    assert found_test
+    assert found_suite
+
+
+def test_otel_attribute_convention_failure(pytester):
+    """test that failing tests in otel mode record exception and error conventions"""
+    pytester.makepyfile(
+        common_code
+        + """
+def test_failing_convention():
+    assert 1 == 2
+"""
+    )
+    pytester.runpytest(
+        "--otel-span-file-output=./test_spans_otel_fail.json",
+        "--otel-debug=True",
+        "--otel-attribute-convention=otel",
+        "-rsx",
+    )
+    with open("test_spans_otel_fail.json", encoding="utf-8") as f:
+        span_list = json.loads(f.read())
+
+    found_test = False
+    found_suite = False
+    for span in span_list:
+        if span["name"] == "Running test_failing_convention":
+            found_test = True
+            attrs = span["attributes"]
+            assert attrs["test.case.result.status"] == "fail"
+            assert attrs["cicd.pipeline.task.run.result"] == "failure"
+            assert "exception.message" in attrs
+            assert "exception.stacktrace" in attrs
+            assert "exception.type" in attrs
+            assert "error.type" in attrs
+        if span["name"] == "Test Suite":
+            found_suite = True
+            attrs = span["attributes"]
+            assert attrs["test.suite.run.status"] == "failure"
+            assert attrs["cicd.pipeline.result"] == "failure"
+            assert attrs["error.type"] == "failed"
+
+    assert found_test
+    assert found_suite
+
+
+def test_attribute_convention_env_var(pytester, monkeypatch):
+    """test that OTEL_ATTRIBUTE_CONVENTION environment variable is respected"""
+    pytester.makepyfile(
+        common_code
+        + """
+def test_env_conv():
+    assert True
+"""
+    )
+    monkeypatch.setenv("OTEL_ATTRIBUTE_CONVENTION", "otel")
+    pytester.runpytest(
+        "--otel-span-file-output=./test_spans_env_conv.json",
+        "--otel-debug=True",
+        "-rsx",
+    )
+    with open("test_spans_env_conv.json", encoding="utf-8") as f:
+        span_list = json.loads(f.read())
+
+    found_test = False
+    for span in span_list:
+        if span["name"] == "Running test_env_conv":
+            found_test = True
+            attrs = span["attributes"]
+            assert attrs["test.case.name"].endswith("::test_env_conv")
+            assert attrs["test.case.result.status"] == "pass"
+            assert "tests.name" not in attrs
+
+    assert found_test
