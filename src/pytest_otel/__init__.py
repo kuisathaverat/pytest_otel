@@ -5,7 +5,8 @@ import logging
 import os
 import sys
 import traceback
-from typing import Any, Dict, Generator, Optional, Union
+from collections.abc import Generator
+from typing import Any
 
 import _pytest._code
 import _pytest.skipping
@@ -22,17 +23,17 @@ from opentelemetry.trace.status import Status, StatusCode
 __version__ = "2.4.0"
 
 LOGGER = logging.getLogger("pytest_otel")
-service_name: Optional[str] = None
-traceparent: Optional[str] = None
-session_name: Optional[str] = None
-tracer: Optional[trace.Tracer] = None
-insecure: Optional[Union[bool, str]] = None
+service_name: str | None = None
+traceparent: str | None = None
+session_name: str | None = None
+tracer: trace.Tracer | None = None
+insecure: bool | str | None = None
 in_memory_span_exporter: bool = False
-otel_span_file_output: Optional[str] = None
-otel_exporter: Optional[SpanExporter] = None
-otel_exporter_protocol: Optional[str] = None
-spans: Dict[str, trace.Span] = {}
-outcome: Optional[str] = None
+otel_span_file_output: str | None = None
+otel_exporter: SpanExporter | None = None
+otel_exporter_protocol: str | None = None
+spans: dict[str, trace.Span] = {}
+outcome: str | None = None
 otel_debug: bool = False
 
 
@@ -145,7 +146,7 @@ def init_otel() -> None:
 
 def start_span(
     span_name: str,
-    context: Optional[Context] = None,
+    context: Context | None = None,
     kind: trace.SpanKind = trace.SpanKind.INTERNAL,
 ) -> trace.Span:
     """Starts a span with the name, context, and kind passed as parameters"""
@@ -167,7 +168,7 @@ def end_span(span_name: str, outcome: str) -> trace.Span:
     return spans[span_name]
 
 
-def convertOutcome(outcome: Optional[str]) -> Status:
+def convertOutcome(outcome: str | None) -> Status:
     """Convert from pytest outcome to OpenTelemetry status code"""
     if outcome == "passed":
         return Status(status_code=StatusCode.OK)
@@ -201,7 +202,7 @@ def exitCodeToOutcome(exit_code: int) -> str:
         return "failed"
 
 
-def traceparent_context(traceparent: Optional[str]) -> Context:
+def traceparent_context(traceparent: str | None) -> Context:
     """Extracts the trace context from the TRACEPARENT passed"""
     carrier = {}
     carrier["traceparent"] = traceparent
@@ -343,7 +344,7 @@ def pytest_runtest_call(item: pytest.Item) -> Generator[None, None, None]:
                 span.set_attribute("tests.message", f"{info_msg}")
         if hasattr(sys, "last_value") and hasattr(sys, "last_traceback") and hasattr(sys, "last_type"):
             longrepr: Any = ""
-            last_value = sys.last_value
+            last_value: Any = sys.last_value
             last_traceback = sys.last_traceback
             last_type = sys.last_type
 
