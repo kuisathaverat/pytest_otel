@@ -32,3 +32,10 @@ updates:
       interval: "weekly"
       day: "sunday"
       time: "22:00"
+
+  - package-ecosystem: "pre-commit"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "sunday"
+      time: "22:00"
