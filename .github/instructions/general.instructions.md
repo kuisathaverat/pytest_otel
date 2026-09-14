@@ -150,7 +150,7 @@ class MessageSender(ABC):
 class NotificationService:
     def __init__(self, sender: MessageSender):
         self.sender = sender
-    
+
     def notify(self, message):
         self.sender.send(message)
 ```
@@ -230,10 +230,10 @@ class User:
 class ShoppingCart:
     def __init__(self):
         self.items = []
-    
+
     def add_item(self, item):
         self.items.append(item)
-    
+
     def apply_discount(self):
         if len(self.items) > 5:
             return sum(item.price for item in self.items) * 0.9
@@ -246,7 +246,7 @@ total = cart.apply_discount()
 class ShoppingCart:
     def __init__(self):
         self.items = []
-    
+
     def get_items(self):
         return self.items
 
