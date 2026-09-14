@@ -51,7 +51,6 @@ test = [
   "pre-commit==4.6.2",
   "pytest-docker==3.2.5",
   "mypy==2.3.1",
-  "flake8==7.3.0",
   "ruff==0.16.7",
   "build==1.6.1",
   "twine==7.0.0",
@@ -79,19 +78,6 @@ junit_family = "xunit2"
 [tool.distutils.bdist_wheel]
 universal = true
 
-[tool.flake8]
-max-line-length = "120"
-ignore = [
-  "F401", "H301", "E203", "SC200", "SC100", "W503",
-]
-exclude = [
-  ".venv",
-  ".git",
-  "__pycache__",
-  ".tox",
-  ".mypy_cache",
-]
-
 [tool.ruff]
 target-version = "py310"
 line-length = 120
@@ -117,7 +103,7 @@ select = [
   "SIM",  # flake8-simplify
 ]
 ignore = [
-  "F401",  # unused imports (kept for backwards compatibility with flake8 config)
+  "F401",  # unused imports (kept for backwards compatibility)
   "E203",  # whitespace before ':' (conflicts with formatter)
 ]
 
