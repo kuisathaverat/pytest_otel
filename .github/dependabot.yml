@@ -1,10 +1,4 @@
 ---
-## NOTE: Dependabot does not support a "pre-commit" package-ecosystem, so hook
-## revisions in .pre-commit-config.yaml are kept up to date instead by the
-## scheduled `pre-commit-autoupdate` GitHub Actions workflow (see
-## .github/workflows/pre-commit-autoupdate.yml), which runs `pre-commit
-## autoupdate` and opens a pull request. The "github-actions" ecosystem below
-## still covers version pins used directly in our workflow files.
 version: 2
 updates:
   - package-ecosystem: "pip"
@@ -33,6 +27,13 @@ updates:
       time: "22:00"
 
   - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "sunday"
+      time: "22:00"
+
+  - package-ecosystem: "pre-commit"
     directory: "/"
     schedule:
       interval: "weekly"
