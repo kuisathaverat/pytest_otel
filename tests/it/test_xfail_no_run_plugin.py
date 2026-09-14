@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import pytest
-from utils import assertTest, STATUS_CODE_OK
+from utils import STATUS_CODE_OK, assertTest
 
 pytest_plugins = ["pytester"]
 

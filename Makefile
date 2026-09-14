@@ -53,7 +53,8 @@ it-test: virtualenv
 .PHONY: format
 format: virtualenv
 	source $(VENV)/bin/activate;\
-	$(PYTHON) -m black src/pytest_otel tests;
+	$(PYTHON) -m ruff check --fix src/pytest_otel tests;\
+	$(PYTHON) -m ruff format src/pytest_otel tests;
 
 ## @help:test-coverage:Report coverage.
 .PHONY: test-coverage

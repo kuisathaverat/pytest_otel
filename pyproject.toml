@@ -51,8 +51,7 @@ test = [
   "pre-commit==4.6.2",
   "pytest-docker==3.2.5",
   "mypy==2.3.1",
-  "black==26.5.1",
-  "flake8==7.3.0",
+  "ruff==0.16.7",
   "build==1.6.1",
   "twine==7.0.0",
   "python-dotenv>=1.0.0",
@@ -79,34 +78,44 @@ junit_family = "xunit2"
 [tool.distutils.bdist_wheel]
 universal = true
 
-[tool.flake8]
-max-line-length = "120"
-ignore = [
-  "F401", "H301", "E203", "SC200", "SC100", "W503",
-]
+[tool.ruff]
+target-version = "py310"
+line-length = 120
 exclude = [
   ".venv",
   ".git",
   "__pycache__",
   ".tox",
   ".mypy_cache",
+  "build",
+  "dist",
 ]
 
-[tool.black]
-line-length = 120
-include = '\.pyi?$'
-exclude = '''
-/(
-    \.git
-  | _build
-  | build
-  | dist
-  | elasticapm/utils/wrapt
-  # The following are specific to Black, you probably don't want those.
-  | blib2to3
-  | tests/data
-)/
-'''
+[tool.ruff.lint]
+select = [
+  "E",    # pycodestyle errors
+  "W",    # pycodestyle warnings
+  "F",    # pyflakes
+  "I",    # isort
+  "UP",   # pyupgrade
+  "B",    # flake8-bugbear
+  "C4",   # flake8-comprehensions
+  "SIM",  # flake8-simplify
+]
+ignore = [
+  "F401",  # unused imports (kept for backwards compatibility)
+  "E203",  # whitespace before ':' (conflicts with formatter)
+]
+
+[tool.ruff.lint.per-file-ignores]
+"docs/demos/test/test_demo.py" = [
+  "E402",  # pytest_plugins must be set before other imports in demo fixtures
+  "F841",  # intentional unused variable to trigger a demo failure
+  "B011",  # intentional `assert False` to trigger demo xfail scenarios
+]
+
+[tool.ruff.format]
+line-ending = "lf"
 
 [tool.coverage.run]
 source = [ "src", "tests" ]

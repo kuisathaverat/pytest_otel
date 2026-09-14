@@ -1,9 +1,10 @@
-import pytest
 import json
-import time
 import os
 import socket
 import subprocess
+import time
+
+import pytest
 
 SPAN_KIND_INTERNAL = 1
 SPAN_KIND_SERVER = 2
@@ -17,10 +18,7 @@ def is_portListening(host, port):
     a_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     location = (host, port)
     result_of_check = a_socket.connect_ex(location)
-    if result_of_check == 0:
-        return True
-    else:
-        return False
+    return result_of_check == 0
 
 
 def getSize(filename):
@@ -56,22 +54,22 @@ def assertAttrKeyValue(attributes, key, value):
 
 def assertTestSuit(span, outcome, status):
     """check attributes of a test suit span"""
-    assert span["kind"] == SPAN_KIND_SERVER, f'span kind is not server: {span["kind"]}'
-    assert span["status"]["code"] == status, f'status code is not {status}: {span["status"]["code"]}'
+    assert span["kind"] == SPAN_KIND_SERVER, f"span kind is not server: {span['kind']}"
+    assert span["status"]["code"] == status, f"status code is not {status}: {span['status']['code']}"
     if outcome is not None:
         assertAttrKeyValue(span["attributes"], "tests.status", outcome)
-    assert len(span["parentSpanId"]) == 0, f'parent span id is not empty: {span["parentSpanId"]}'
+    assert len(span["parentSpanId"]) == 0, f"parent span id is not empty: {span['parentSpanId']}"
     return True
 
 
 def assertSpan(span, name, outcome, status):
     """check attributes of a span"""
-    assert span["kind"] == SPAN_KIND_INTERNAL, f'span kind is not internal: {span["kind"]}'
-    assert span["status"]["code"] == status, f'status code is not {status}: {span["status"]["code"]}'
+    assert span["kind"] == SPAN_KIND_INTERNAL, f"span kind is not internal: {span['kind']}"
+    assert span["status"]["code"] == status, f"status code is not {status}: {span['status']['code']}"
     assertAttrKeyValue(span["attributes"], "tests.name", name)
     if outcome is not None:
         assertAttrKeyValue(span["attributes"], "tests.status", outcome)
-    assert len(span["parentSpanId"]) > 0, f'parent span id is empty: {span["parentSpanId"]}'
+    assert len(span["parentSpanId"]) > 0, f"parent span id is empty: {span['parentSpanId']}"
     return True
 
 
@@ -89,7 +87,7 @@ def assertTest(pytester, name, ts_outcome, ts_status, outcome, status):
         print(
             f"""
             spans_output {spans_output}
-            resourceSpans {spans_output['resourceSpans']}
+            resourceSpans {spans_output["resourceSpans"]}
         """
         )
         for resourceSpan in spans_output["resourceSpans"]:
