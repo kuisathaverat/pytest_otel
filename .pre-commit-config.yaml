@@ -50,7 +50,7 @@ repos:
         args: ['--ignore-words-list','pullrequest,pullrequests']
 
 -   repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.16.7
+    rev: v0.16.8
     hooks:
     -   id: ruff-check
         name: "Python: lint (ruff)"
