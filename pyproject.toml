@@ -51,7 +51,7 @@ test = [
   "pre-commit==4.6.2",
   "pytest-docker==3.2.5",
   "mypy==2.3.1",
-  "ruff==0.16.7",
+  "ruff==0.16.8",
   "build==1.6.1",
   "twine==7.0.0",
   "python-dotenv>=1.0.0",
