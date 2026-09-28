@@ -32,7 +32,7 @@ fix the bug itself.
 ## Fix bugs
 
 Look through the [GitHub issues for bugs](https://github.com/kuisathaverat/pytest_otel/issues?q=is%3Aopen+is%3Aissue+label%3Abug)
-See also the ["good first issue" issues](hhttps://github.com/kuisathaverat/pytest_otel/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22)
+See also the ["good first issue" issues](https://github.com/kuisathaverat/pytest_otel/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22)
 that are friendly to new contributors.
 
 > [!NOTE]
@@ -120,4 +120,4 @@ When closing a Pull Request, it needs to be acknowledging the time, effort, and 
 
 When a pull request is submitted to fix an issue, add text like ``closes #XYZW`` to the PR description and/or commits (where ``XYZW`` is the issue number). See the [GitHub docs](https://help.github.com/en/github/managing-your-work-on-github/linking-a-pull-request-to-an-issue#linking-a-pull-request-to-an-issue-using-a-keyword) for more information.
 
-When an issue is due to user error (e.g. misunderstanding of a functionality), please politely explain to the user why the issue raised is really a non-issue and ask them to close the issue if they have no further questions. If the original requestor is unresponsive, the issue will be handled as described in the section [Handling stale issues/PRs](#handling-stale-issuesprs) above.
+When an issue is due to user error (e.g. misunderstanding of a functionality), please politely explain to the user why the issue raised is really a non-issue and ask them to close the issue if they have no further questions. If the original requester is unresponsive, the issue will be handled as described in the section [Handling stale issues/PRs](#handling-stale-issuesprs) above.

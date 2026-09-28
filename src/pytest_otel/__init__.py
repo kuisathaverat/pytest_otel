@@ -20,6 +20,15 @@ from opentelemetry.sdk.trace.export.in_memory_span_exporter import InMemorySpanE
 from opentelemetry.trace.propagation.tracecontext import TraceContextTextMapPropagator
 from opentelemetry.trace.status import Status, StatusCode
 
+from pytest_otel.conventions import (
+    AttributeConvention,
+    set_suite_attributes,
+    set_test_exception_attributes,
+    set_test_outcome_attributes,
+    set_test_start_attributes,
+    set_test_teardown_attributes,
+)
+
 __version__ = "2.4.0"
 
 LOGGER = logging.getLogger("pytest_otel")
@@ -35,6 +44,7 @@ otel_exporter_protocol: str | None = None
 spans: dict[str, trace.Span] = {}
 outcome: str | None = None
 otel_debug: bool = False
+attribute_convention: AttributeConvention = AttributeConvention.LEGACY
 
 
 def pytest_addoption(parser: pytest.Parser) -> None:
@@ -97,6 +107,12 @@ def pytest_addoption(parser: pytest.Parser) -> None:
         dest="otel_dotenv_path",
         default=None,
         help="Path to a dotenv file to load environment variables from.",
+    )
+    group.addoption(
+        "--otel-attribute-convention",
+        dest="otel_attribute_convention",
+        default=None,
+        help="Attribute convention: 'legacy', 'otel', or 'both'. Default is 'legacy'.(OTEL_ATTRIBUTE_CONVENTION)",
     )
 
 
@@ -162,7 +178,7 @@ def end_span(span_name: str, outcome: str) -> trace.Span:
     """Ends a span identified by its name"""
     status = convertOutcome(outcome)
     spans[span_name].set_status(status)
-    spans[span_name].set_attribute("tests.status", outcome)
+    set_suite_attributes(spans[span_name], attribute_convention, span_name, outcome)
     spans[span_name].end()
     LOGGER.debug(f"The {span_name} transaction ends. -> {status}")
     return spans[span_name]
@@ -212,7 +228,7 @@ def traceparent_context(traceparent: str | None) -> Context:
 def pytest_sessionstart(session: pytest.Session) -> None:
     """Uses the commandline parameter to define the environment variables used by OpenTelemetry"""
     global service_name, traceparent, session_name, insecure, in_memory_span_exporter
-    global otel_span_file_output, otel_debug, otel_exporter_protocol
+    global otel_span_file_output, otel_debug, otel_exporter_protocol, attribute_convention
     config = session.config
 
     # Load dotenv file if specified
@@ -245,6 +261,11 @@ def pytest_sessionstart(session: pytest.Session) -> None:
     headers = config.getoption("headers")
     insecure = config.getoption("insecure")
     otel_exporter_protocol = config.getoption("otel_exporter_protocol")
+
+    convention_opt = config.getoption("otel_attribute_convention")
+    if convention_opt is None:
+        convention_opt = os.getenv("OTEL_ATTRIBUTE_CONVENTION", os.getenv("OTEL_SEMCONV_CONVENTION", None))
+    attribute_convention = AttributeConvention.from_str(convention_opt)
 
     # Precedence order:
     # 1. CLI options (including defaults) - always take highest priority
@@ -333,7 +354,7 @@ def pytest_runtest_call(item: pytest.Item) -> Generator[None, None, None]:
         set_status_on_exception=True,
     ) as span:
         LOGGER.debug(f"Test {item.name} starts - {span.get_span_context()}")
-        span.set_attribute("tests.name", item.name)
+        set_test_start_attributes(span, attribute_convention, item.name, getattr(item, "nodeid", None))
         info: Any = yield
         LOGGER.debug(f"Test {item.name} ends - {span.get_span_context()}")
 
@@ -341,7 +362,12 @@ def pytest_runtest_call(item: pytest.Item) -> Generator[None, None, None]:
             (info_class, info_msg, info_trace) = info._excinfo
             if info_class.__name__ == "Failed":
                 outcome = "failed"
-                span.set_attribute("tests.message", f"{info_msg}")
+                set_test_exception_attributes(
+                    span,
+                    attribute_convention,
+                    message=f"{info_msg}",
+                    exception_type=getattr(info_class, "__name__", None),
+                )
         if hasattr(sys, "last_value") and hasattr(sys, "last_traceback") and hasattr(sys, "last_type"):
             longrepr: Any = ""
             last_value: Any = sys.last_value
@@ -361,16 +387,15 @@ def pytest_runtest_call(item: pytest.Item) -> Generator[None, None, None]:
                 longrepr = item._repr_failure_py(last_value, style=style)  # type: ignore[attr-defined]
 
             stack_trace = repr(traceback.format_exception(last_type, last_value, last_traceback))
-            span.set_attribute("tests.error", f"{stack_trace}")
+            err_msg: str | None = None
             if hasattr(last_value, "args") and len(getattr(last_value, "args", [])) > 0:
-                span.set_attribute("tests.message", f"{last_value.args[0]}")
-
-            if longrepr:
-                span.set_attribute("tests.message", f"{longrepr}")
+                err_msg = f"{last_value.args[0]}"
+            elif longrepr:
+                err_msg = f"{longrepr}"
             elif last_value:
-                span.set_attribute("tests.message", f"{last_value}")
+                err_msg = f"{last_value}"
             elif last_type:
-                span.set_attribute("tests.message", f"{last_type}")
+                err_msg = f"{last_type}"
 
             skipping = getattr(_pytest, "skipping", None)
             if skipping:
@@ -378,11 +403,20 @@ def pytest_runtest_call(item: pytest.Item) -> Generator[None, None, None]:
                 xfailed = item._store.get(key, None)  # type: ignore[attr-defined,arg-type]
                 reason = getattr(xfailed, "reason", None)
                 if reason:
-                    span.set_attribute("tests.message", f"{reason}")
+                    err_msg = f"{reason}"
+
+            exc_type_name = getattr(last_type, "__name__", str(last_type)) if last_type else None
+            set_test_exception_attributes(
+                span,
+                attribute_convention,
+                message=err_msg,
+                error_stack=stack_trace,
+                exception_type=exc_type_name,
+            )
 
         status = convertOutcome(outcome)
         span.set_status(status)
-        span.set_attribute("tests.status", f"{outcome}")
+        set_test_outcome_attributes(span, attribute_convention, outcome)
 
 
 @pytest.hookimpl()
@@ -392,9 +426,13 @@ def pytest_runtest_logreport(report: pytest.TestReport) -> None:
     if report.failed and report.when == "teardown":
         try:
             span = spans[test_name]
-            span.set_attribute("tests.systemerr", report.capstderr)
-            span.set_attribute("tests.systemout", report.capstdout)
-            span.set_attribute("tests.duration", getattr(report, "duration", 0.0))
+            set_test_teardown_attributes(
+                span,
+                attribute_convention,
+                report.capstderr,
+                report.capstdout,
+                getattr(report, "duration", 0.0),
+            )
 
         except KeyError:
             LOGGER.warning(f"Ignoring unknown test during teardown: {test_name}")

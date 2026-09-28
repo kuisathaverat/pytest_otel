@@ -33,6 +33,7 @@ pip install pytest-otel
 * --otel-insecure: Disables TLS. Env variable: `OTEL_EXPORTER_OTLP_INSECURE`
 * --otel-exporter-protocol: OTLP exporter protocol to use: 'grpc' or 'http/protobuf'. Default is 'grpc'. Env variable: `OTEL_EXPORTER_OTLP_PROTOCOL`
 * --otel-dotenv-path: Path to a dotenv file to load environment variables from.
+* --otel-attribute-convention: Attribute convention for published spans: `'legacy'`, `'otel'` (or `'cicd'`), or `'both'`. Default is `'legacy'`. Env variable: `OTEL_ATTRIBUTE_CONVENTION`
 
 ```bash
 pytest --otel-endpoint https://otelcollector.example.com:4317 \
@@ -94,6 +95,25 @@ pytest --otel-endpoint https://otelcollector.example.com:4318 \
        --otel-service-name pytest_otel \
        --otel-session-name='My_Test_cases' \
        --otel-exporter-protocol=http/protobuf
+```
+
+## OpenTelemetry Semantic Conventions
+
+`pytest_otel` supports interchangeable attribute conventions via the `--otel-attribute-convention` flag or the `OTEL_ATTRIBUTE_CONVENTION` environment variable:
+
+* **`legacy` (default)**: Uses `tests.*` attributes (`tests.name`, `tests.status`, `tests.message`, `tests.error`, `tests.systemerr`, `tests.systemout`, `tests.duration`). Ensures 100% backward compatibility.
+* **`otel`** (alias: `cicd`): Adheres to standard [OpenTelemetry Test and CI/CD Semantic Conventions](https://opentelemetry.io/docs/specs/semconv/registry/attributes/test/):
+  - Test suite span: `test.suite.name`, `test.suite.run.status`, `cicd.pipeline.result`, `error.type`
+  - Test case span: `test.case.name`, `test.case.result.status`, `cicd.pipeline.task.name`, `cicd.pipeline.task.run.result`
+  - Exceptions & errors: `exception.type`, `exception.message`, `exception.stacktrace`, `error.type`
+  - Output & timing: `test.case.systemerr`, `test.case.systemout`, `test.case.duration`
+* **`both`**: Publishes both legacy and OTel semantic convention attributes simultaneously for seamless, zero-downtime migration of dashboards and queries.
+
+Example:
+```bash
+pytest --otel-attribute-convention=otel
+# or with both conventions
+pytest --otel-attribute-convention=both
 ```
 
 ## Demos
