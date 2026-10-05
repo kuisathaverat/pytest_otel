@@ -20,7 +20,7 @@ from opentelemetry.sdk.trace.export.in_memory_span_exporter import InMemorySpanE
 from opentelemetry.trace.propagation.tracecontext import TraceContextTextMapPropagator
 from opentelemetry.trace.status import Status, StatusCode
 
-__version__ = "2.4.0"
+__version__ = "2.5.0"
 
 LOGGER = logging.getLogger("pytest_otel")
 service_name: str | None = None
