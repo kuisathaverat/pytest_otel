@@ -1,3 +1,61 @@
+# version 2.5.0
+
+* Bump minor version to 2.5.0
+* chore(deps-dev): bump ruff from 0.16.9 to 0.16.10 [#245](https://github.com/kuisathaverat/pytest_otel/pull/245)
+* chore(deps): bump the opentelemetry group with 3 updates [#244](https://github.com/kuisathaverat/pytest_otel/pull/244)
+* chore(deps): bump release-drafter/release-drafter from 7.7.0 to 7.8.0 [#243](https://github.com/kuisathaverat/pytest_otel/pull/243)
+* chore(deps): bump https://github.com/astral-sh/ruff-pre-commit [#247](https://github.com/kuisathaverat/pytest_otel/pull/247)
+* chore(deps-dev): bump mypy from 2.3.1 to 2.4.0 [#246](https://github.com/kuisathaverat/pytest_otel/pull/246)
+* chore(deps): bump https://github.com/astral-sh/ruff-pre-commit [#242](https://github.com/kuisathaverat/pytest_otel/pull/242)
+* chore(deps-dev): bump ruff from 0.16.7 to 0.16.9 [#241](https://github.com/kuisathaverat/pytest_otel/pull/241)
+* chore(deps): bump https://github.com/pre-commit/pre-commit-hooks [#236](https://github.com/kuisathaverat/pytest_otel/pull/236)
+* chore(deps): bump https://github.com/codespell-project/codespell [#235](https://github.com/kuisathaverat/pytest_otel/pull/235)
+* chore(deps): bump https://github.com/adrienverge/yamllint.git [#237](https://github.com/kuisathaverat/pytest_otel/pull/237)
+* chore(lint): configure ruff in pre-commit and project toolchain [#231](https://github.com/kuisathaverat/pytest_otel/pull/231)
+* ci: enable Dependabot updates for pre-commit hooks [#230](https://github.com/kuisathaverat/pytest_otel/pull/230)
+* chore: remove deprecated 4.1-Beast custom agent [#234](https://github.com/kuisathaverat/pytest_otel/pull/234)
+* Fix GitHub instructions non-compliance issues [#232](https://github.com/kuisathaverat/pytest_otel/pull/232)
+* refactor(pytest_otel): remove dead metrics code, add type annotations [#233](https://github.com/kuisathaverat/pytest_otel/pull/233)
+* docs: copy instructions from ai-workspace [#229](https://github.com/kuisathaverat/pytest_otel/pull/229)
+* chore(deps-dev): bump build from 1.6.0 to 1.6.1 [#228](https://github.com/kuisathaverat/pytest_otel/pull/228)
+* chore(deps-dev): bump build from 1.5.1 to 1.6.0 [#227](https://github.com/kuisathaverat/pytest_otel/pull/227)
+* chore(deps): bump actions/setup-python from 6.3.0 to 7.0.0 [#220](https://github.com/kuisathaverat/pytest_otel/pull/220)
+* chore(deps): bump actions/checkout from 7.0.0 to 7.0.1 [#221](https://github.com/kuisathaverat/pytest_otel/pull/221)
+* chore(deps): bump release-drafter/release-drafter from 7.6.0 to 7.7.0 [#223](https://github.com/kuisathaverat/pytest_otel/pull/223)
+* chore(deps-dev): bump twine from 6.2.0 to 7.0.0 [#224](https://github.com/kuisathaverat/pytest_otel/pull/224)
+* chore(deps-dev): bump pre-commit from 4.6.0 to 4.6.2 [#225](https://github.com/kuisathaverat/pytest_otel/pull/225)
+* chore(deps-dev): bump mypy from 2.3.0 to 2.3.1 [#226](https://github.com/kuisathaverat/pytest_otel/pull/226)
+* chore(deps-dev): bump mypy from 2.2.0 to 2.3.0 [#219](https://github.com/kuisathaverat/pytest_otel/pull/219)
+* chore(deps): bump the opentelemetry group with 3 updates [#218](https://github.com/kuisathaverat/pytest_otel/pull/218)
+* chore(deps): bump release-drafter/release-drafter from 7.5.1 to 7.6.0 [#217](https://github.com/kuisathaverat/pytest_otel/pull/217)
+* chore(deps): bump release-drafter/release-drafter from 6.4.0 to 7.5.1 [#211](https://github.com/kuisathaverat/pytest_otel/pull/211)
+* chore(deps-dev): bump mypy from 2.1.0 to 2.2.0 [#214](https://github.com/kuisathaverat/pytest_otel/pull/214)
+* chore(deps-dev): bump build from 1.5.0 to 1.5.1 [#215](https://github.com/kuisathaverat/pytest_otel/pull/215)
+* fix(ci): use `labels` (plural) for Maintenance category in release-drafter.yml [#216](https://github.com/kuisathaverat/pytest_otel/pull/216)
+
+# version 2.4.0
+
+* chore(deps): bump the opentelemetry group with 3 updates [#212](https://github.com/kuisathaverat/pytest_otel/pull/212)
+* chore(deps): bump actions/setup-python from 6.2.0 to 6.3.0 [#210](https://github.com/kuisathaverat/pytest_otel/pull/210)
+* Bump version to 2.4.0 [#213](https://github.com/kuisathaverat/pytest_otel/pull/213)
+
+# version 2.3.0
+
+* Bump package version to 2.3.0 [#209](https://github.com/kuisathaverat/pytest_otel/pull/209)
+* chore(deps): bump actions/checkout from 6.0.3 to 7.0.0 [#207](https://github.com/kuisathaverat/pytest_otel/pull/207)
+* chore(deps): bump pytest from 9.1.0 to 9.1.1 [#208](https://github.com/kuisathaverat/pytest_otel/pull/208)
+
+# version 2.2.2
+
+* Bump version to 2.2.2 [#205](https://github.com/kuisathaverat/pytest_otel/pull/205)
+* chore(deps-dev): bump mypy from 1.20.2 to 2.1.0 [#198](https://github.com/kuisathaverat/pytest_otel/pull/198)
+* chore(deps-dev): bump black from 26.5.0 to 26.5.1 [#201](https://github.com/kuisathaverat/pytest_otel/pull/201)
+* chore(deps): bump pytest from 9.0.3 to 9.1.0 [#204](https://github.com/kuisathaverat/pytest_otel/pull/204)
+* chore(deps): bump the opentelemetry group with 3 updates [#200](https://github.com/kuisathaverat/pytest_otel/pull/200)
+* chore(deps): bump actions/checkout from 6.0.2 to 6.0.3 [#203](https://github.com/kuisathaverat/pytest_otel/pull/203)
+* chore(deps-dev): bump build from 1.4.4 to 1.5.0 [#195](https://github.com/kuisathaverat/pytest_otel/pull/195)
+* chore(deps-dev): bump black from 26.3.1 to 26.5.0 [#199](https://github.com/kuisathaverat/pytest_otel/pull/199)
+
 # version 2.2.1
 
 * Bump patch version to 2.2.1
