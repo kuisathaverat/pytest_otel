@@ -1,3 +1,10 @@
+# version 2.5.1
+
+* Bump patch version to 2.5.1
+* chore(deps): bump the opentelemetry group with 3 updates [#251](https://github.com/kuisathaverat/pytest_otel/pull/251)
+* chore(deps): bump release-drafter/release-drafter from 7.8.0 to 7.10.0 [#250](https://github.com/kuisathaverat/pytest_otel/pull/250)
+* chore(deps): bump actions/upload-artifact from 7.0.1 to 7.0.2 [#249](https://github.com/kuisathaverat/pytest_otel/pull/249)
+
 # version 2.5.0
 
 * Bump minor version to 2.5.0
