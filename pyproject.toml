@@ -49,7 +49,7 @@ dotenv = [
 test = [
   "pytest-cov==7.1.0",
   "pre-commit==4.6.2",
-  "pytest-docker==3.2.5",
+  "pytest-docker==3.2.6",
   "ruff==0.17.2",
   "mypy==2.4.0",
   "build==1.6.1",
