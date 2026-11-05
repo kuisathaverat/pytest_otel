@@ -1,3 +1,18 @@
+# version 2.6.0
+
+* Bump minor version to 2.6.0
+* chore(deps): bump https://github.com/astral-sh/ruff-pre-commit [#263](https://github.com/kuisathaverat/pytest_otel/pull/263)
+* chore(deps): bump pytest from 9.1.1 to 9.2.0 [#262](https://github.com/kuisathaverat/pytest_otel/pull/262)
+* chore(deps-dev): bump mypy from 2.4.0 to 2.4.1 [#261](https://github.com/kuisathaverat/pytest_otel/pull/261)
+* chore(deps-dev): bump ruff from 0.17.2 to 0.17.3 [#260](https://github.com/kuisathaverat/pytest_otel/pull/260)
+* chore(deps): bump the opentelemetry group with 3 updates [#259](https://github.com/kuisathaverat/pytest_otel/pull/259)
+* chore(deps): bump https://github.com/astral-sh/ruff-pre-commit [#258](https://github.com/kuisathaverat/pytest_otel/pull/258)
+* chore(deps-dev): bump pytest-docker from 3.2.5 to 3.2.6 [#257](https://github.com/kuisathaverat/pytest_otel/pull/257)
+* chore(deps-dev): bump ruff from 0.17.1 to 0.17.2 [#256](https://github.com/kuisathaverat/pytest_otel/pull/256)
+* chore(deps): bump actions/setup-python from 7.0.0 to 7.1.0 [#255](https://github.com/kuisathaverat/pytest_otel/pull/255)
+* chore(deps): bump https://github.com/astral-sh/ruff-pre-commit [#254](https://github.com/kuisathaverat/pytest_otel/pull/254)
+* chore(deps-dev): bump ruff from 0.16.10 to 0.17.1 [#253](https://github.com/kuisathaverat/pytest_otel/pull/253)
+
 # version 2.5.1
 
 * Bump patch version to 2.5.1
